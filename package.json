@@ -1,6 +1,6 @@
 {
   "name": "@obsfx/trekker-dashboard",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Kanban board dashboard for Trekker issue tracker. Connects to local .trekker database.",
   "type": "module",
   "bin": {
