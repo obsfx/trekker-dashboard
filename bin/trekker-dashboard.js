@@ -1,18 +1,20 @@
 #!/usr/bin/env bun
 import { Command } from "commander";
 import { resolve, dirname } from "path";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const pkg = JSON.parse(readFileSync(resolve(__dirname, "..", "package.json"), "utf-8"));
 
 const program = new Command();
 
 program
   .name("trekker-dashboard")
   .description("Kanban board dashboard for Trekker issue tracker")
-  .version("1.0.4")
+  .version(pkg.version)
   .option("-p, --port <port>", "Port to run on", "3000")
   .action(async (options) => {
     const cwd = process.cwd();

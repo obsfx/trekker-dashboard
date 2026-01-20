@@ -3,13 +3,14 @@ import { Command } from "commander";
 import { spawn } from "child_process";
 import { resolve, dirname } from "path";
 import { existsSync } from "fs";
+import pkg from "../package.json";
 
 const program = new Command();
 
 program
   .name("trekker-dashboard")
   .description("Kanban board dashboard for Trekker issue tracker")
-  .version("0.1.0")
+  .version(pkg.version)
   .option("-p, --port <port>", "Port to run on", "3000")
   .action(async (options) => {
     const cwd = process.cwd();
