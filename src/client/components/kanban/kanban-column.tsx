@@ -3,7 +3,6 @@
 import { Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Task, Epic } from "@/types";
 import { TaskCard } from "./task-card";
 import { EpicCard } from "./epic-card";
@@ -70,7 +69,7 @@ export function KanbanColumn({
       </div>
 
       {/* Column Content */}
-      <ScrollArea className="flex-1 min-h-[100px]">
+      <div className="flex-1 min-h-[100px]">
         <div className="flex flex-col gap-2 p-2">
           {epics.map((epic) => (
             <EpicCard
@@ -95,7 +94,7 @@ export function KanbanColumn({
             </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

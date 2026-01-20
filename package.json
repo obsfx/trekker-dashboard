@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "concurrently \"bun run dev:client\" \"bun run dev:server\"",
     "dev:client": "vite",
-    "dev:server": "bun --watch src/server/index.ts",
+    "dev:server": "TREKKER_DB_PATH=.trekker/trekker.db bun --watch src/server/index.ts",
     "build": "bun run build:client && bun run build:server",
     "build:client": "vite build",
     "build:server": "bun build src/server/index.ts --outdir dist/server --target bun",
