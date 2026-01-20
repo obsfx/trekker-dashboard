@@ -1,5 +1,3 @@
-"use client";
-
 import { useAppData } from "@/hooks/use-data";
 import { useTaskEvents } from "@/hooks/use-task-events";
 import { useUIStore } from "@/stores";
@@ -10,7 +8,7 @@ import { EpicDetailModal } from "@/components/epic-detail";
 import { CreateModal } from "@/components/create-modal";
 import { ConnectionIndicator } from "@/components/shared/connection-indicator";
 
-export default function Home() {
+export function App() {
   const { tasks, epics, project, isLoading, error, refetch } = useAppData();
   const {
     selectedTaskId,

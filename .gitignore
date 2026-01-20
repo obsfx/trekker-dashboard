@@ -1,9 +1,8 @@
 # Dependencies
 node_modules/
 
-# Next.js build output
-.next/
-out/
+# Build output
+dist/
 
 # Trekker database (created by CLI)
 .trekker/

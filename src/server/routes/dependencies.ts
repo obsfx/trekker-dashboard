@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { Hono } from "hono";
 import { and, eq } from "drizzle-orm";
-import { getDb, tasks, dependencies } from "@/lib/db";
-import { generateUuid } from "@/lib/id-generator";
+import { getDb, tasks, dependencies } from "../lib/db";
+import { generateUuid } from "../lib/id-generator";
+
+const app = new Hono();
 
 async function wouldCreateCycle(
   taskId: string,
@@ -38,34 +40,26 @@ async function wouldCreateCycle(
   return false;
 }
 
-export async function POST(request: NextRequest) {
+// POST /api/dependencies - Create a dependency
+app.post("/", async (c) => {
   try {
     const db = getDb();
-    const body = await request.json();
+    const body = await c.req.json();
 
     const { taskId, dependsOnId } = body;
 
     // Validate required fields
     if (!taskId || typeof taskId !== "string") {
-      return NextResponse.json(
-        { error: "taskId is required" },
-        { status: 400 }
-      );
+      return c.json({ error: "taskId is required" }, 400);
     }
 
     if (!dependsOnId || typeof dependsOnId !== "string") {
-      return NextResponse.json(
-        { error: "dependsOnId is required" },
-        { status: 400 }
-      );
+      return c.json({ error: "dependsOnId is required" }, 400);
     }
 
     // Validate task can't depend on itself
     if (taskId === dependsOnId) {
-      return NextResponse.json(
-        { error: "A task cannot depend on itself" },
-        { status: 400 }
-      );
+      return c.json({ error: "A task cannot depend on itself" }, 400);
     }
 
     // Validate both tasks exist
@@ -75,14 +69,11 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (!task[0]) {
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+      return c.json({ error: "Task not found" }, 404);
     }
 
     if (!dependsOnTask[0]) {
-      return NextResponse.json(
-        { error: "Dependency task not found" },
-        { status: 404 }
-      );
+      return c.json({ error: "Dependency task not found" }, 404);
     }
 
     // Validate dependency doesn't already exist
@@ -97,18 +88,15 @@ export async function POST(request: NextRequest) {
       );
 
     if (existingDep[0]) {
-      return NextResponse.json(
-        { error: "Dependency already exists" },
-        { status: 400 }
-      );
+      return c.json({ error: "Dependency already exists" }, 400);
     }
 
     // Validate adding this dependency won't create a cycle
     const wouldCycle = await wouldCreateCycle(taskId, dependsOnId);
     if (wouldCycle) {
-      return NextResponse.json(
+      return c.json(
         { error: "Adding this dependency would create a cycle" },
-        { status: 400 }
+        400
       );
     }
 
@@ -124,35 +112,29 @@ export async function POST(request: NextRequest) {
 
     await db.insert(dependencies).values(dependency);
 
-    return NextResponse.json(dependency, { status: 201 });
+    return c.json(dependency, 201);
   } catch (error) {
-    return NextResponse.json(
+    return c.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      500
     );
   }
-}
+});
 
-export async function DELETE(request: NextRequest) {
+// DELETE /api/dependencies - Delete a dependency
+app.delete("/", async (c) => {
   try {
     const db = getDb();
-    const { searchParams } = new URL(request.url);
-    const taskId = searchParams.get("taskId");
-    const dependsOnId = searchParams.get("dependsOnId");
+    const taskId = c.req.query("taskId");
+    const dependsOnId = c.req.query("dependsOnId");
 
     // Validate required params
     if (!taskId) {
-      return NextResponse.json(
-        { error: "taskId query param is required" },
-        { status: 400 }
-      );
+      return c.json({ error: "taskId query param is required" }, 400);
     }
 
     if (!dependsOnId) {
-      return NextResponse.json(
-        { error: "dependsOnId query param is required" },
-        { status: 400 }
-      );
+      return c.json({ error: "dependsOnId query param is required" }, 400);
     }
 
     // Validate dependency exists
@@ -167,10 +149,7 @@ export async function DELETE(request: NextRequest) {
       );
 
     if (!existingDep[0]) {
-      return NextResponse.json(
-        { error: "Dependency not found" },
-        { status: 404 }
-      );
+      return c.json({ error: "Dependency not found" }, 404);
     }
 
     await db
@@ -182,11 +161,13 @@ export async function DELETE(request: NextRequest) {
         )
       );
 
-    return NextResponse.json({ success: true });
+    return c.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
+    return c.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      500
     );
   }
-}
+});
+
+export default app;

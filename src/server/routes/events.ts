@@ -1,7 +1,8 @@
-import { NextRequest } from "next/server";
-import { getDb, tasks, epics } from "@/lib/db";
+import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
+import { getDb, tasks, epics } from "../lib/db";
 
-export const dynamic = "force-dynamic";
+const app = new Hono();
 
 interface TaskState {
   id: string;
@@ -160,19 +161,21 @@ async function initializeState() {
   }
 }
 
-export async function GET(request: NextRequest) {
+// GET /api/events - SSE endpoint
+app.get("/", async (c) => {
   await initializeState();
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    start(controller) {
-      // Send initial connection message
-      controller.enqueue(
-        encoder.encode(`data: ${JSON.stringify({ type: "connected" })}\n\n`)
-      );
+  return streamSSE(c, async (stream) => {
+    // Send initial connection message
+    await stream.writeSSE({
+      data: JSON.stringify({ type: "connected" }),
+    });
 
-      // Poll for changes every 2 seconds
-      const interval = setInterval(async () => {
+    // Poll for changes every 2 seconds
+    let running = true;
+
+    const checkForChanges = async () => {
+      while (running) {
         try {
           const events = await getChanges();
           for (const event of events) {
@@ -180,28 +183,24 @@ export async function GET(request: NextRequest) {
               ...event,
               timestamp: new Date().toISOString(),
             };
-            controller.enqueue(
-              encoder.encode(`data: ${JSON.stringify(sseData)}\n\n`)
-            );
+            await stream.writeSSE({
+              data: JSON.stringify(sseData),
+            });
           }
         } catch {
           // Ignore errors during polling
         }
-      }, 2000);
+        await stream.sleep(2000);
+      }
+    };
 
-      // Handle client disconnect
-      request.signal.addEventListener("abort", () => {
-        clearInterval(interval);
-        controller.close();
-      });
-    },
-  });
+    // Handle abort signal
+    c.req.raw.signal.addEventListener("abort", () => {
+      running = false;
+    });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
+    await checkForChanges();
   });
-}
+});
+
+export default app;

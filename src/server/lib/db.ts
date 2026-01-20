@@ -9,7 +9,7 @@ import {
   idCounters,
 } from "./schema";
 
-// Re-export schema from shared
+// Re-export schema
 export { projects, epics, tasks, comments, dependencies, idCounters };
 
 const schema = { projects, epics, tasks, comments, dependencies, idCounters };
