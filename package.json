@@ -15,7 +15,10 @@
   "scripts": {
     "dev": "bun --bun next dev",
     "build": "bun --bun next build",
-    "start": "bun run src/cli.ts"
+    "start": "bun run src/cli.ts",
+    "release:patch": "bun run build && npm version patch && npm publish --access public",
+    "release:minor": "bun run build && npm version minor && npm publish --access public",
+    "release:major": "bun run build && npm version major && npm publish --access public"
   },
   "keywords": [
     "trekker",
