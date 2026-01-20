@@ -1,8 +1,21 @@
 "use client";
 
-import { Square, SquareCheck as CheckSquare } from "lucide-react";
+import { Square, SquareCheck as CheckSquare, Archive, SquareX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+function getStatusIcon(status: string) {
+  switch (status) {
+    case "completed":
+      return <CheckSquare className="h-4 w-4 text-green-500 shrink-0" />;
+    case "archived":
+      return <Archive className="h-4 w-4 text-gray-400 shrink-0" />;
+    case "wont_fix":
+      return <SquareX className="h-4 w-4 text-amber-500 shrink-0" />;
+    default:
+      return <Square className="h-4 w-4 opacity-50 shrink-0" />;
+  }
+}
 import {
   Select,
   SelectContent,
@@ -96,31 +109,30 @@ export function EpicSidebar({
               Tasks
             </SectionHeader>
             <div className="space-y-1">
-              {epicTasks.map((task) => (
-                <Button
-                  key={task.id}
-                  variant="ghost"
-                  className="w-full justify-start h-auto p-1.5 gap-2"
-                  onClick={() => onTaskClick?.(task)}
-                >
-                  {task.status === "completed" ? (
-                    <CheckSquare className="h-4 w-4 text-green-500 shrink-0" />
-                  ) : (
-                    <Square className="h-4 w-4 opacity-50 shrink-0" />
-                  )}
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {task.id}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-sm flex-1 text-left truncate",
-                      task.status === "completed" && "line-through text-muted-foreground"
-                    )}
+              {epicTasks.map((task) => {
+                const isDone = task.status === "completed" || task.status === "archived" || task.status === "wont_fix";
+                return (
+                  <Button
+                    key={task.id}
+                    variant="ghost"
+                    className="w-full justify-start h-auto p-1.5 gap-2"
+                    onClick={() => onTaskClick?.(task)}
                   >
-                    {task.title}
-                  </span>
-                </Button>
-              ))}
+                    {getStatusIcon(task.status)}
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {task.id}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-sm flex-1 text-left truncate",
+                        isDone && "line-through text-muted-foreground"
+                      )}
+                    >
+                      {task.title}
+                    </span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         )}

@@ -20,7 +20,7 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
   const cardType = getCardType(task);
 
   const completedSubtasks = subtasks.filter(
-    (s) => s.status === "completed"
+    (s) => s.status === "completed",
   ).length;
 
   return (
@@ -50,7 +50,7 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
       {(epicName || task.tags) && (
         <div className="flex flex-wrap gap-2 mb-2">
           {epicName && (
-            <p className="text-xs flex gap-2">
+            <p className="text-xs flex gap-2 items-center">
               <Layers width={16} />
               {epicName}
             </p>
@@ -80,7 +80,10 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
       )}
 
       {subtasks.length > 0 && (
-        <SubtaskProgress completed={completedSubtasks} total={subtasks.length} />
+        <SubtaskProgress
+          completed={completedSubtasks}
+          total={subtasks.length}
+        />
       )}
     </div>
   );
