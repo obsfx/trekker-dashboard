@@ -79,7 +79,7 @@ export function CreateModal({
           </SheetTitle>
         </SheetHeader>
 
-        <ScrollArea className="flex-1" showScrollbar>
+        <ScrollArea className="flex-1 min-h-0" showScrollbar>
           <form
             id="create-form"
             onSubmit={handleSubmit}
