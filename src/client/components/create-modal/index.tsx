@@ -67,7 +67,10 @@ export function CreateModal({
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent side="right" className="p-0 flex flex-col w-full sm:max-w-md">
+      <SheetContent
+        side="right"
+        className="p-0 flex flex-col w-full sm:max-w-md gap-0"
+      >
         <SheetHeader className="shrink-0 border-b p-4">
           <SheetTitle className="flex items-center gap-2">
             <Icon className="h-5 w-5" />
@@ -78,7 +81,7 @@ export function CreateModal({
         <form
           id="create-form"
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-4 space-y-4"
+          className="flex-1 overflow-y-scroll p-4 space-y-4"
         >
           <div className="space-y-2">
             <Label>Type</Label>
