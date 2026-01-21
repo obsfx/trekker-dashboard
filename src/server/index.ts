@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { existsSync } from "fs";
 import { resolve, dirname } from "path";
-import { eq } from "drizzle-orm";
 
 import tasksRoutes from "./routes/tasks";
 import epicsRoutes from "./routes/epics";
@@ -14,7 +13,8 @@ import eventsRoutes from "./routes/events";
 import searchRoutes from "./routes/search";
 import listRoutes from "./routes/list";
 import historyRoutes from "./routes/history";
-import { getDb, tasks, epics } from "./lib/db";
+import archiveRoutes from "./routes/archive";
+import { errorHandler } from "./middleware/error-handler";
 
 const app = new Hono();
 
@@ -26,50 +26,6 @@ app.use(
   })
 );
 
-// Bulk archive all completed tasks and epics
-app.post("/api/bulk-archive-completed", async (c) => {
-  try {
-    const db = getDb();
-    const now = new Date();
-
-    // Get and archive completed tasks
-    const completedTasks = await db
-      .select()
-      .from(tasks)
-      .where(eq(tasks.status, "completed"));
-
-    for (const task of completedTasks) {
-      await db
-        .update(tasks)
-        .set({ status: "archived", updatedAt: now })
-        .where(eq(tasks.id, task.id));
-    }
-
-    // Get and archive completed epics
-    const completedEpics = await db
-      .select()
-      .from(epics)
-      .where(eq(epics.status, "completed"));
-
-    for (const epic of completedEpics) {
-      await db
-        .update(epics)
-        .set({ status: "archived", updatedAt: now })
-        .where(eq(epics.id, epic.id));
-    }
-
-    return c.json({
-      tasksArchived: completedTasks.length,
-      epicsArchived: completedEpics.length,
-    });
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
-});
-
 // Mount API routes
 app.route("/api/tasks", tasksRoutes);
 app.route("/api/epics", epicsRoutes);
@@ -80,16 +36,40 @@ app.route("/api/events", eventsRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/list", listRoutes);
 app.route("/api/history", historyRoutes);
+app.route("/api/bulk-archive-completed", archiveRoutes);
+
+// Centralized error handling
+app.onError(errorHandler);
 
 // Serve static files in production
 const scriptDir = dirname(import.meta.url.replace("file://", ""));
 const distClientPath = resolve(scriptDir, "../../dist/client");
 
 if (existsSync(distClientPath)) {
-  app.use("/*", serveStatic({ root: distClientPath }));
+  const indexPath = resolve(distClientPath, "index.html");
 
-  // SPA fallback - serve index.html for non-API routes
-  app.get("*", serveStatic({ path: resolve(distClientPath, "index.html") }));
+  const serveIndex = async () => {
+    if (existsSync(indexPath)) {
+      const file = Bun.file(indexPath);
+      return new Response(file, {
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+    return new Response("Not Found", { status: 404 });
+  };
+
+  // SPA routes - serve index.html for client-side routing
+  app.get("/", async () => serveIndex());
+  app.get("/list", async () => serveIndex());
+  app.get("/history", async () => serveIndex());
+
+  // Serve static files (JS, CSS, images, etc.)
+  app.use(
+    "/*",
+    serveStatic({
+      root: distClientPath,
+    })
+  );
 }
 
 // Export for CLI to use

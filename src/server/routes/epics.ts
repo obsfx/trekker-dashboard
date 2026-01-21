@@ -1,155 +1,51 @@
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
-import { getDb, epics, projects } from "../lib/db";
-import { generateId } from "../lib/id-generator";
+import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
+import * as epicService from "../services/epic.service";
 import { EPIC_STATUSES } from "../lib/types";
 
 const app = new Hono();
 
-// GET /api/epics - List all epics
+// Schemas
+const createEpicSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().nullish(),
+  status: z.enum(EPIC_STATUSES).optional(),
+  priority: z.number().int().min(0).max(5).optional(),
+});
+
+const updateEpicSchema = z.object({
+  title: z.string().min(1).optional(),
+  description: z.string().nullable().optional(),
+  status: z.enum(EPIC_STATUSES).optional(),
+  priority: z.number().int().min(0).max(5).optional(),
+});
+
+// Routes
 app.get("/", async (c) => {
-  try {
-    const db = getDb();
-    const allEpics = await db.select().from(epics);
-    return c.json(allEpics);
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+  const epics = await epicService.getAll();
+  return c.json(epics);
 });
 
-// POST /api/epics - Create an epic
-app.post("/", async (c) => {
-  try {
-    const db = getDb();
-    const body = await c.req.json();
-
-    const { title, description, status = "todo", priority = 2 } = body;
-
-    if (!title || typeof title !== "string") {
-      return c.json({ error: "Title is required" }, 400);
-    }
-
-    if (status && !EPIC_STATUSES.includes(status)) {
-      return c.json({ error: `Invalid status: ${status}` }, 400);
-    }
-
-    if (priority < 0 || priority > 5) {
-      return c.json({ error: "Priority must be 0-5" }, 400);
-    }
-
-    const project = await db.select().from(projects);
-    if (!project[0]) {
-      return c.json({ error: "Project not initialized" }, 400);
-    }
-
-    const id = generateId("epic");
-    const now = new Date();
-
-    const epic = {
-      id,
-      projectId: project[0].id,
-      title,
-      description: description || null,
-      status,
-      priority,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    await db.insert(epics).values(epic);
-
-    return c.json(epic, 201);
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+app.post("/", zValidator("json", createEpicSchema), async (c) => {
+  const input = c.req.valid("json");
+  const epic = await epicService.create(input);
+  return c.json(epic, 201);
 });
 
-// GET /api/epics/:id - Get a single epic
 app.get("/:id", async (c) => {
-  try {
-    const id = c.req.param("id");
-    const db = getDb();
-    const result = await db.select().from(epics).where(eq(epics.id, id));
-
-    if (!result[0]) {
-      return c.json({ error: "Epic not found" }, 404);
-    }
-
-    return c.json(result[0]);
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+  const epic = await epicService.getById(c.req.param("id"));
+  return c.json(epic);
 });
 
-// PUT /api/epics/:id - Update an epic
-app.put("/:id", async (c) => {
-  try {
-    const id = c.req.param("id");
-    const db = getDb();
-    const body = await c.req.json();
-
-    const existing = await db.select().from(epics).where(eq(epics.id, id));
-    if (!existing[0]) {
-      return c.json({ error: "Epic not found" }, 404);
-    }
-
-    const { title, description, status, priority } = body;
-
-    if (status && !EPIC_STATUSES.includes(status)) {
-      return c.json({ error: `Invalid status: ${status}` }, 400);
-    }
-
-    if (priority !== undefined && (priority < 0 || priority > 5)) {
-      return c.json({ error: "Priority must be 0-5" }, 400);
-    }
-
-    const updates: Record<string, unknown> = { updatedAt: new Date() };
-    if (title !== undefined) updates.title = title;
-    if (description !== undefined) updates.description = description;
-    if (status !== undefined) updates.status = status;
-    if (priority !== undefined) updates.priority = priority;
-
-    await db.update(epics).set(updates).where(eq(epics.id, id));
-
-    const updated = await db.select().from(epics).where(eq(epics.id, id));
-    return c.json(updated[0]);
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+app.put("/:id", zValidator("json", updateEpicSchema), async (c) => {
+  const epic = await epicService.update(c.req.param("id"), c.req.valid("json"));
+  return c.json(epic);
 });
 
-// DELETE /api/epics/:id - Delete an epic
 app.delete("/:id", async (c) => {
-  try {
-    const id = c.req.param("id");
-    const db = getDb();
-
-    const existing = await db.select().from(epics).where(eq(epics.id, id));
-    if (!existing[0]) {
-      return c.json({ error: "Epic not found" }, 404);
-    }
-
-    await db.delete(epics).where(eq(epics.id, id));
-
-    return c.json({ success: true });
-  } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      500
-    );
-  }
+  await epicService.remove(c.req.param("id"));
+  return c.json({ success: true });
 });
 
 export default app;
