@@ -3,11 +3,18 @@ import { useAppData } from "@/hooks/use-data";
 import { useUIStore } from "@/stores";
 import { AppHeader } from "@/components/app-header";
 import { ConnectionIndicator } from "@/components/shared/connection-indicator";
+import { CreateModal } from "@/components/create-modal";
 import { KanbanPage, ListPage, HistoryPage } from "@/pages";
 
 export function App() {
-  const { tasks, epics, project } = useAppData();
-  const { connectionStatus, openCreateModal } = useUIStore();
+  const { tasks, epics, project, refetch } = useAppData();
+  const {
+    connectionStatus,
+    showCreateModal,
+    createModalDefaults,
+    openCreateModal,
+    closeCreateModal,
+  } = useUIStore();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,6 +37,15 @@ export function App() {
           <ConnectionIndicator status={connectionStatus} />
         </div>
       </footer>
+
+      <CreateModal
+        open={showCreateModal}
+        onClose={closeCreateModal}
+        onCreated={refetch}
+        epics={epics}
+        tasks={tasks}
+        defaultStatus={createModalDefaults.status || "todo"}
+      />
     </div>
   );
 }

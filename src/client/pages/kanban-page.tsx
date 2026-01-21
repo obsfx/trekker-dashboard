@@ -7,7 +7,6 @@ import { useUIStore } from "@/stores";
 import { KanbanBoard } from "@/components/kanban";
 import { TaskDetailModal } from "@/components/task-detail";
 import { EpicDetailModal } from "@/components/epic-detail";
-import { CreateModal } from "@/components/create-modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function KanbanPage() {
@@ -17,14 +16,11 @@ export function KanbanPage() {
   const {
     selectedTaskId,
     selectedEpicId,
-    showCreateModal,
-    createModalDefaults,
     openTaskDetail,
     openEpicDetail,
     openCreateModal,
     closeTaskDetail,
     closeEpicDetail,
-    closeCreateModal,
   } = useUIStore();
 
   // Subscribe to SSE events
@@ -104,15 +100,6 @@ export function KanbanPage() {
           const fullTask = tasks.find((t) => t.id === task.id);
           if (fullTask) openTaskDetail(fullTask.id);
         }}
-      />
-
-      <CreateModal
-        open={showCreateModal}
-        onClose={closeCreateModal}
-        onCreated={refetch}
-        epics={epics}
-        tasks={tasks}
-        defaultStatus={createModalDefaults.status || "todo"}
       />
     </>
   );
