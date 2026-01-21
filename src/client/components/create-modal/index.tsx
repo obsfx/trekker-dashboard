@@ -8,6 +8,7 @@ import {
   SheetTitle,
   SheetFooter,
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -78,41 +79,43 @@ export function CreateModal({
           </SheetTitle>
         </SheetHeader>
 
-        <form
-          id="create-form"
-          onSubmit={handleSubmit}
-          className="flex-1 overflow-y-scroll p-4 space-y-4"
-        >
-          <div className="space-y-2">
-            <Label>Type</Label>
-            <Select
-              value={type}
-              onValueChange={(v) => setType(v as CreateType)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TYPE_OPTIONS.map(({ value, label, icon: TypeIcon }) => (
-                  <SelectItem key={value} value={value}>
-                    <div className="flex items-center gap-2">
-                      <TypeIcon className="h-4 w-4" />
-                      {label}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <ScrollArea className="flex-1" showScrollbar>
+          <form
+            id="create-form"
+            onSubmit={handleSubmit}
+            className="p-4 space-y-4"
+          >
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select
+                value={type}
+                onValueChange={(v) => setType(v as CreateType)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_OPTIONS.map(({ value, label, icon: TypeIcon }) => (
+                    <SelectItem key={value} value={value}>
+                      <div className="flex items-center gap-2">
+                        <TypeIcon className="h-4 w-4" />
+                        {label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <CreateForm
-            key={type}
-            form={form}
-            type={type}
-            epics={epics}
-            parentTasks={parentTasks}
-          />
-        </form>
+            <CreateForm
+              key={type}
+              form={form}
+              type={type}
+              epics={epics}
+              parentTasks={parentTasks}
+            />
+          </form>
+        </ScrollArea>
 
         <SheetFooter className="shrink-0 border-t p-4">
           <Button type="button" variant="outline" onClick={onClose}>
