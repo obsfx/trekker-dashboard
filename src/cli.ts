@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import { spawn } from "child_process";
 import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import { existsSync } from "fs";
 import pkg from "../package.json";
 
@@ -42,7 +43,7 @@ program
     console.log("Press Ctrl+C to stop\n");
 
     // Find the webapp directory
-    const scriptDir = dirname(import.meta.url.replace("file://", ""));
+    const scriptDir = dirname(fileURLToPath(import.meta.url));
 
     // Check for standalone build first (production)
     const standaloneDir = resolve(scriptDir, "..", ".next", "standalone");
