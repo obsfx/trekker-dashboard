@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import type { Task, Epic } from "@/types";
 import { TaskCard } from "./task-card";
 import { EpicCard } from "./epic-card";
+import { compareBySortOption } from "@/lib/sort";
 import {
   ColumnFilter,
   DEFAULT_FILTER,
   type ColumnFilterState,
-  type SortOption,
 } from "./column-filter";
 
 interface KanbanColumnProps {
@@ -24,29 +24,6 @@ interface KanbanColumnProps {
   onTaskClick: (task: Task) => void;
   onEpicClick: (epic: Epic) => void;
   onArchiveAll?: () => void;
-}
-
-type Sortable = { createdAt: string; updatedAt: string; priority: number; title: string };
-
-function compareBySortOption<T extends Sortable>(a: T, b: T, sort: SortOption): number {
-  switch (sort) {
-    case "created:desc":
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    case "created:asc":
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    case "updated:desc":
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    case "priority:asc":
-      return a.priority - b.priority;
-    case "priority:desc":
-      return b.priority - a.priority;
-    case "title:asc":
-      return a.title.localeCompare(b.title);
-    case "title:desc":
-      return b.title.localeCompare(a.title);
-    default:
-      return 0;
-  }
 }
 
 export function KanbanColumn({

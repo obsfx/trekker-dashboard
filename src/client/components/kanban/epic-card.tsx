@@ -4,20 +4,12 @@ import type { Epic } from "@/types";
 import { PriorityBadge } from "@/components/priority-badge";
 import { Progress } from "@/components/ui/progress";
 import { formatRelativeTime } from "@/lib/date";
-import { cn } from "@/lib/utils";
 import { Layers } from "lucide-react";
 
 interface EpicCardProps {
   epic: Epic;
   taskCount: { total: number; completed: number };
   onClick: () => void;
-}
-
-function getProgressColor(pct: number): string {
-  if (pct === 100) return "[&>div]:bg-green-500";
-  if (pct >= 67) return "[&>div]:bg-blue-500";
-  if (pct >= 34) return "[&>div]:bg-yellow-500";
-  return "[&>div]:bg-red-500";
 }
 
 export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
@@ -53,10 +45,7 @@ export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
           </span>
         </div>
         {taskCount.total > 0 && (
-          <Progress
-            value={percentage}
-            className={cn("h-1.5", getProgressColor(percentage))}
-          />
+          <Progress value={percentage} className="h-1.5" />
         )}
         <p className="text-[10px] text-muted-foreground">
           {formatRelativeTime(epic.createdAt)}

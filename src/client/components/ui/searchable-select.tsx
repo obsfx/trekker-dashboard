@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useOnClickOutside } from "usehooks-ts";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -51,22 +52,10 @@ export function SearchableSelect({
     }
   }, [open]);
 
-  React.useEffect(() => {
-    if (!open) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-        setSearch("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+  useOnClickOutside(containerRef as React.RefObject<HTMLElement>, () => {
+    setOpen(false);
+    setSearch("");
+  });
 
   const handleSelect = (optionValue: string) => {
     onValueChange(optionValue === value ? null : optionValue);

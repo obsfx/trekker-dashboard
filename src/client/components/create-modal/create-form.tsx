@@ -49,7 +49,7 @@ export function CreateForm({ form, type, epics, parentTasks }: CreateFormProps) 
           placeholder={`${type.charAt(0).toUpperCase() + type.slice(1)} title`}
         />
         {errors.title && (
-          <p className="text-sm text-destructive">{errors.title.message as string}</p>
+          <p className="text-sm text-destructive">{String(errors.title.message)}</p>
         )}
       </div>
 
@@ -220,7 +220,7 @@ function SubtaskFields({ form, parentTasks }: SubtaskFieldsProps) {
           )}
         />
         {errors.parentTaskId && (
-          <p className="text-sm text-destructive">{errors.parentTaskId.message as string}</p>
+          <p className="text-sm text-destructive">{String(errors.parentTaskId.message)}</p>
         )}
       </div>
     </>

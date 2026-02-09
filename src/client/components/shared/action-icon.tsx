@@ -2,8 +2,7 @@
 
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export type HistoryAction = "create" | "update" | "delete";
+import type { HistoryAction } from "@/hooks/use-history";
 
 const ACTION_CONFIG = {
   create: { icon: Plus, color: "text-green-500" },

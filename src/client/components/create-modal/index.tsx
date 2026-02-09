@@ -89,7 +89,11 @@ export function CreateModal({
               <Label>Type</Label>
               <Select
                 value={type}
-                onValueChange={(v) => setType(v as CreateType)}
+                onValueChange={(v) => {
+                  if (TYPE_OPTIONS.some((opt) => opt.value === v)) {
+                    setType(v as CreateType);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />

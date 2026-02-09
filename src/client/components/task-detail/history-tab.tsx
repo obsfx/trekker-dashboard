@@ -1,6 +1,6 @@
 "use client";
 
-import { useHistory, HistoryEvent, HistoryAction } from "@/hooks/use-history";
+import { useHistory, type HistoryEvent } from "@/hooks/use-history";
 import { cn } from "@/lib/utils";
 import { formatRelativeTime } from "@/lib/date";
 import { ActionIcon, getActionColor } from "@/components/shared";
@@ -27,17 +27,14 @@ function HistoryEventItem({ event }: { event: HistoryEvent }) {
 
         {event.changes && Object.keys(event.changes).length > 0 && (
           <div className="text-xs space-y-0.5">
-            {Object.entries(event.changes).map(([field, change]) => {
-              const { from, to } = change as { from: unknown; to: unknown };
-              return (
-                <div key={field} className="flex items-center gap-1 text-muted-foreground">
-                  <span className="font-medium">{field}:</span>
-                  <span className="line-through">{String(from)}</span>
-                  <span>→</span>
-                  <span className="text-foreground">{String(to)}</span>
-                </div>
-              );
-            })}
+            {Object.entries(event.changes).map(([field, change]) => (
+              <div key={field} className="flex items-center gap-1 text-muted-foreground">
+                <span className="font-medium">{field}:</span>
+                <span className="line-through">{String(change.from)}</span>
+                <span>→</span>
+                <span className="text-foreground">{String(change.to)}</span>
+              </div>
+            ))}
           </div>
         )}
 
