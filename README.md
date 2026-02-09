@@ -1,5 +1,9 @@
 # Trekker Dashboard
 
+![Trekker Dashboard](https://omercan.io/trekker/images/dashboard-kanban.png)
+
+![Trekker Dashboard](https://omercan.io/trekker/images/dashboard-epic.png)
+
 A kanban board dashboard for [Trekker](https://github.com/obsfx/trekker) issue tracker. Provides a visual interface for managing tasks, epics, and dependencies stored in the local SQLite database.
 
 ## Install
