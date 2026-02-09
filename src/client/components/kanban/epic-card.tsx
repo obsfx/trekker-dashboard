@@ -1,8 +1,9 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
 import type { Epic } from "@/types";
 import { PriorityBadge } from "@/components/priority-badge";
+import { Progress } from "@/components/ui/progress";
+import { formatRelativeTime } from "@/lib/date";
 import { Layers } from "lucide-react";
 
 interface EpicCardProps {
@@ -12,6 +13,11 @@ interface EpicCardProps {
 }
 
 export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
+  const percentage =
+    taskCount.total > 0
+      ? Math.round((taskCount.completed / taskCount.total) * 100)
+      : 0;
+
   return (
     <div
       className="p-2 cursor-pointer bg-blue-50 dark:bg-blue-800 hover:ring wrap-break-word"
@@ -29,9 +35,20 @@ export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
 
       <h4 className="text-sm font-medium mb-2">{epic.title}</h4>
 
-      <div className="border-t pt-1">
-        <p className="text-xs text-muted-foreground">
-          {taskCount.total} tasks · {taskCount.completed} completed
+      <div className="border-t pt-1.5 flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            {taskCount.completed}/{taskCount.total} tasks
+          </p>
+          <span className="text-[10px] text-muted-foreground font-mono">
+            {percentage}%
+          </span>
+        </div>
+        {taskCount.total > 0 && (
+          <Progress value={percentage} className="h-1.5" />
+        )}
+        <p className="text-[10px] text-muted-foreground">
+          {formatRelativeTime(epic.createdAt)}
         </p>
       </div>
     </div>

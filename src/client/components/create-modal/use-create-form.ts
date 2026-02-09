@@ -142,18 +142,15 @@ export function useCreateForm({
       try {
         let created;
 
-        switch (type) {
-          case "epic":
-            created = await createEpic(data as EpicFormData);
-            toast.success(`Epic ${created.id} created`);
-            break;
-          case "subtask":
-            created = await createSubtask(data as SubtaskFormData);
-            toast.success(`Subtask ${created.id} created`);
-            break;
-          default:
-            created = await createTask(data as TaskFormData);
-            toast.success(`Task ${created.id} created`);
+        if (type === "epic") {
+          created = await createEpic(data as EpicFormData);
+          toast.success(`Epic ${created.id} created`);
+        } else if (type === "subtask") {
+          created = await createSubtask(data as SubtaskFormData);
+          toast.success(`Subtask ${created.id} created`);
+        } else {
+          created = await createTask(data as TaskFormData);
+          toast.success(`Task ${created.id} created`);
         }
 
         onClose();
@@ -163,10 +160,9 @@ export function useCreateForm({
       }
     },
     (errors) => {
-      // Show first validation error as toast
       const firstError = Object.values(errors)[0];
-      if (firstError?.message) {
-        toast.error(firstError.message as string);
+      if (firstError?.message && typeof firstError.message === "string") {
+        toast.error(firstError.message);
       }
     }
   );

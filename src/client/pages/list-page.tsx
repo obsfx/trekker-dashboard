@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/date";
+import { SORT_OPTIONS } from "@/lib/sort";
 import {
   TASK_STATUSES,
   STATUS_LABELS,
@@ -31,16 +32,6 @@ const TYPE_OPTIONS: { value: ListEntityType; label: string }[] = [
   { value: "epic", label: "Epic" },
   { value: "task", label: "Task" },
   { value: "subtask", label: "Subtask" },
-];
-
-const SORT_OPTIONS = [
-  { value: "created:desc", label: "Newest first" },
-  { value: "created:asc", label: "Oldest first" },
-  { value: "updated:desc", label: "Recently updated" },
-  { value: "priority:asc", label: "Priority (high to low)" },
-  { value: "priority:desc", label: "Priority (low to high)" },
-  { value: "title:asc", label: "Title (A-Z)" },
-  { value: "title:desc", label: "Title (Z-A)" },
 ];
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100];

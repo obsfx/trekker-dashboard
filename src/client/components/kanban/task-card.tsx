@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { Task } from "@/types";
-import { getCardType } from "@/lib/constants";
 import { PriorityBadge } from "@/components/priority-badge";
 import { SubtaskProgress } from "@/components/subtask-progress";
-import { Layers, SquareCheck, ArrowLeftToLine, ArrowRightFromLine } from "lucide-react";
+import { formatRelativeTime } from "@/lib/date";
+import {
+  Layers,
+  SquareCheck,
+  ArrowLeftToLine,
+  ArrowRightFromLine,
+} from "lucide-react";
 
 interface TaskCardProps {
   task: Task;
@@ -16,9 +20,6 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
-  const [expanded, setExpanded] = useState(false);
-  const cardType = getCardType(task);
-
   const completedSubtasks = subtasks.filter(
     (s) => s.status === "completed",
   ).length;
@@ -95,6 +96,10 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
           total={subtasks.length}
         />
       )}
+
+      <p className="text-[10px] text-muted-foreground mt-1.5">
+        {formatRelativeTime(task.createdAt)}
+      </p>
     </div>
   );
 }

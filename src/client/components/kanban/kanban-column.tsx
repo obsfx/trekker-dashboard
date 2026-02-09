@@ -1,11 +1,18 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Plus, Archive } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Task, Epic } from "@/types";
 import { TaskCard } from "./task-card";
 import { EpicCard } from "./epic-card";
+import { compareBySortOption } from "@/lib/sort";
+import {
+  ColumnFilter,
+  DEFAULT_FILTER,
+  type ColumnFilterState,
+} from "./column-filter";
 
 interface KanbanColumnProps {
   label: string;
@@ -30,7 +37,19 @@ export function KanbanColumn({
   onEpicClick,
   onArchiveAll,
 }: KanbanColumnProps) {
-  const totalCount = tasks.length + epics.length;
+  const [filter, setFilter] = useState<ColumnFilterState>(DEFAULT_FILTER);
+
+  const filteredEpics = useMemo(() => {
+    if (filter.type === "task") return [];
+    return [...epics].sort((a, b) => compareBySortOption(a, b, filter.sort));
+  }, [epics, filter]);
+
+  const filteredTasks = useMemo(() => {
+    if (filter.type === "epic") return [];
+    return [...tasks].sort((a, b) => compareBySortOption(a, b, filter.sort));
+  }, [tasks, filter]);
+
+  const totalCount = filteredTasks.length + filteredEpics.length;
 
   const getEpicName = (epicId: string | null) => {
     if (!epicId) return null;
@@ -60,6 +79,7 @@ export function KanbanColumn({
           </Badge>
         </div>
         <div className="flex items-center gap-1">
+          <ColumnFilter value={filter} onChange={setFilter} />
           {onArchiveAll && totalCount > 0 && (
             <Button
               variant="ghost"
@@ -86,7 +106,7 @@ export function KanbanColumn({
       {/* Column Content */}
       <div className="flex-1 min-h-[100px]">
         <div className="flex flex-col gap-2 p-2">
-          {epics.map((epic) => (
+          {filteredEpics.map((epic) => (
             <EpicCard
               key={epic.id}
               epic={epic}
@@ -94,7 +114,7 @@ export function KanbanColumn({
               onClick={() => onEpicClick(epic)}
             />
           ))}
-          {tasks.map((task) => (
+          {filteredTasks.map((task) => (
             <TaskCard
               key={task.id}
               task={task}

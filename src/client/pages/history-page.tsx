@@ -4,17 +4,16 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2 } from "lucide-react";
 import {
   useHistory,
-  HistoryFilters,
-  HistoryEntityType,
-  HistoryAction,
-  HistoryEvent,
+  type HistoryFilters,
+  type HistoryEntityType,
+  type HistoryAction,
 } from "@/hooks/use-history";
 import { useAppData } from "@/hooks/use-data";
 import { useUIStore } from "@/stores";
 import { TaskDetailModal } from "@/components/task-detail";
 import { EpicDetailModal } from "@/components/epic-detail";
+import { HistoryEventItem } from "@/components/history-event-item";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -22,11 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { formatRelativeTime } from "@/lib/date";
-import { ActionIcon, getActionColor } from "@/components/shared";
 
-const TYPE_OPTIONS: { value: HistoryEntityType; label: string }[] = [
+const HISTORY_TYPE_OPTIONS: { value: HistoryEntityType; label: string }[] = [
   { value: "epic", label: "Epic" },
   { value: "task", label: "Task" },
   { value: "subtask", label: "Subtask" },
@@ -34,86 +30,11 @@ const TYPE_OPTIONS: { value: HistoryEntityType; label: string }[] = [
   { value: "dependency", label: "Dependency" },
 ];
 
-const ACTION_OPTIONS: { value: HistoryAction; label: string; icon: typeof Plus }[] = [
+const HISTORY_ACTION_OPTIONS: { value: HistoryAction; label: string; icon: typeof Plus }[] = [
   { value: "create", label: "Created", icon: Plus },
   { value: "update", label: "Updated", icon: Pencil },
   { value: "delete", label: "Deleted", icon: Trash2 },
 ];
-
-function EventItem({
-  event,
-  onEntityClick,
-}: {
-  event: HistoryEvent;
-  onEntityClick: (type: HistoryEntityType, id: string) => void;
-}) {
-  const title =
-    event.snapshot?.title ||
-    (event.changes?.title as { from?: string; to?: string })?.to ||
-    (event.changes?.title as { from?: string; to?: string })?.from ||
-    null;
-
-  const canClick = event.action !== "delete" && ["epic", "task", "subtask"].includes(event.entityType);
-
-  return (
-    <div className="flex gap-3 p-4 border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-      <div className="mt-0.5">
-        <ActionIcon action={event.action} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <button
-            className={cn(
-              "font-mono text-sm",
-              canClick && "hover:underline cursor-pointer",
-              event.action === "delete" && "line-through text-muted-foreground"
-            )}
-            onClick={() => canClick && onEntityClick(event.entityType, event.entityId)}
-            disabled={!canClick}
-          >
-            {event.entityId}
-          </button>
-          <span className={cn("text-sm font-medium", getActionColor(event.action))}>
-            {event.action}d
-          </span>
-          <Badge variant="outline" className="text-xs">
-            {event.entityType}
-          </Badge>
-        </div>
-
-        {title && (
-          <p
-            className={cn(
-              "text-sm mb-2",
-              event.action === "delete" && "line-through text-muted-foreground"
-            )}
-          >
-            {title as string}
-          </p>
-        )}
-
-        {event.changes && Object.keys(event.changes).length > 0 && (
-          <div className="text-xs space-y-1">
-            {Object.entries(event.changes).map(([field, change]) => {
-              const { from, to } = change as { from: unknown; to: unknown };
-              return (
-                <div key={field} className="flex items-center gap-1 text-muted-foreground">
-                  <span className="font-medium">{field}:</span>
-                  <span className="line-through">{String(from)}</span>
-                  <span>→</span>
-                  <span className="text-foreground">{String(to)}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-      <div className="text-xs text-muted-foreground whitespace-nowrap">
-        {formatRelativeTime(event.timestamp)}
-      </div>
-    </div>
-  );
-}
 
 export function HistoryPage() {
   const { tasks, epics, refetch } = useAppData();
@@ -163,7 +84,10 @@ export function HistoryPage() {
               if (v === "all") {
                 setFilters({ ...filters, types: undefined, page: 1 });
               } else {
-                setFilters({ ...filters, types: v.split(",") as HistoryEntityType[], page: 1 });
+                const types = v.split(",").filter(
+                  (t): t is HistoryEntityType => HISTORY_TYPE_OPTIONS.some((opt) => opt.value === t),
+                );
+                setFilters({ ...filters, types, page: 1 });
               }
             }}
           >
@@ -172,7 +96,7 @@ export function HistoryPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              {TYPE_OPTIONS.map(({ value, label }) => (
+              {HISTORY_TYPE_OPTIONS.map(({ value, label }) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>
@@ -187,7 +111,10 @@ export function HistoryPage() {
               if (v === "all") {
                 setFilters({ ...filters, actions: undefined, page: 1 });
               } else {
-                setFilters({ ...filters, actions: v.split(",") as HistoryAction[], page: 1 });
+                const actions = v.split(",").filter(
+                  (a): a is HistoryAction => HISTORY_ACTION_OPTIONS.some((opt) => opt.value === a),
+                );
+                setFilters({ ...filters, actions, page: 1 });
               }
             }}
           >
@@ -196,7 +123,7 @@ export function HistoryPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Actions</SelectItem>
-              {ACTION_OPTIONS.map(({ value, label }) => (
+              {HISTORY_ACTION_OPTIONS.map(({ value, label }) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>
@@ -252,7 +179,7 @@ export function HistoryPage() {
           ) : (
             <div>
               {data.events.map((event) => (
-                <EventItem
+                <HistoryEventItem
                   key={event.id}
                   event={event}
                   onEntityClick={handleEntityClick}
