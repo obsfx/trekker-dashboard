@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { existsSync } from "fs";
 import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
 import tasksRoutes from "./routes/tasks";
 import epicsRoutes from "./routes/epics";
@@ -42,7 +43,7 @@ app.route("/api/bulk-archive-completed", archiveRoutes);
 app.onError(errorHandler);
 
 // Serve static files in production
-const scriptDir = dirname(import.meta.url.replace("file://", ""));
+const scriptDir = dirname(fileURLToPath(import.meta.url));
 const distClientPath = resolve(scriptDir, "../../dist/client");
 
 if (existsSync(distClientPath)) {
