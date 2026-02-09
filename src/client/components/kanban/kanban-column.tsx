@@ -69,7 +69,7 @@ export function KanbanColumn({
   };
 
   return (
-    <div className="w-[280px] min-w-[280px] max-w-[320px] flex flex-col overflow-hidden border rounded-md">
+    <div className="w-[280px] min-w-[280px] max-w-[320px] flex flex-col border rounded-md">
       {/* Column Header */}
       <div className="flex items-center justify-between border-b p-2 bg-accent/50">
         <div className="flex items-center gap-2">
@@ -104,7 +104,7 @@ export function KanbanColumn({
       </div>
 
       {/* Column Content */}
-      <div className="flex-1 min-h-[100px]">
+      <div className="flex-1 min-h-[100px] overflow-y-auto">
         <div className="flex flex-col gap-2 p-2">
           {filteredEpics.map((epic) => (
             <EpicCard
