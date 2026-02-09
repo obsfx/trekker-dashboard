@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { existsSync } from "fs";
-import { resolve, dirname } from "path";
+import { resolve, dirname, relative } from "path";
 import { fileURLToPath } from "url";
 
 import tasksRoutes from "./routes/tasks";
@@ -65,10 +65,12 @@ if (existsSync(distClientPath)) {
   app.get("/history", async () => serveIndex());
 
   // Serve static files (JS, CSS, images, etc.)
+  // Use relative path with forward slashes for Windows compatibility
+  const staticRoot = relative(process.cwd(), distClientPath).split("\\").join("/");
   app.use(
     "/*",
     serveStatic({
-      root: distClientPath,
+      root: staticRoot,
     })
   );
 }
