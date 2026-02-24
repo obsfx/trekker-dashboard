@@ -3,7 +3,6 @@
 import { Pencil } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Breadcrumb, BreadcrumbItem } from "@/components/breadcrumb";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 
@@ -35,8 +34,8 @@ export function DetailModalShell({
         </div>
 
         {/* Main content - scrollable */}
-        <ScrollArea className="max-h-[calc(90vh-80px)]">
-          <div className="flex flex-col">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div className="flex flex-col min-w-0">
             {/* Title section */}
             <div className="px-4 pt-4 pb-2 flex justify-between items-start">
               <h2 className="text-xl font-semibold">{title}</h2>
@@ -63,7 +62,7 @@ export function DetailModalShell({
             {/* Sidebar content */}
             {children}
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

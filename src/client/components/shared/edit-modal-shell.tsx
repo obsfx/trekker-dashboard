@@ -1,7 +1,6 @@
 "use client";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem } from "@/components/breadcrumb";
 import { DeleteConfirmation } from "./delete-confirmation";
@@ -42,7 +41,7 @@ export function EditModalShell({
           <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">{children}</ScrollArea>
+        <div className="overflow-y-auto max-h-[calc(90vh-140px)]">{children}</div>
 
         <div className="p-4 border-t flex items-center justify-between">
           <DeleteConfirmation
