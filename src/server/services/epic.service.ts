@@ -1,7 +1,7 @@
 import { NotFoundError, ValidationError } from '@server/errors';
 import { DEFAULT_PRIORITY } from '@server/lib/constants';
 import type { Epic } from '@server/lib/db';
-import { epics, getDb, projects } from '@server/lib/db';
+import { epics, getDb, projects, tasks } from '@server/lib/db';
 import { generateId } from '@server/lib/id-generator';
 import { eq } from 'drizzle-orm';
 
@@ -89,8 +89,7 @@ export async function remove(id: string): Promise<void> {
   // Verify epic exists
   await getById(id);
 
-  // Note: We don't delete tasks, we orphan them (set epicId to null)
-  // This is safer as it preserves task data
+  await db.update(tasks).set({ epicId: null, updatedAt: new Date() }).where(eq(tasks.epicId, id));
 
   await db.delete(epics).where(eq(epics.id, id));
 }

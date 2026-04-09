@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+
 import {
   comments,
   dependencies,
@@ -32,9 +34,9 @@ export type Task = typeof tasks.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type Dependency = typeof dependencies.$inferSelect;
 
-let sqliteInstance: Database | null = null;
-let db: ReturnType<typeof drizzle<typeof schema>> | null = null;
-let currentDbPath: string | null = null;
+const dbPathStorage = new AsyncLocalStorage<string>();
+const sqliteInstances = new Map<string, Database>();
+const drizzleInstances = new Map<string, ReturnType<typeof drizzle<typeof schema>>>();
 
 function seedProjectConfig(sqlite: Database): void {
   for (const [key, value] of Object.entries(PROJECT_CONFIG_DEFAULTS)) {
@@ -53,41 +55,57 @@ function migrateProjectConfigTable(sqlite: Database): void {
   seedProjectConfig(sqlite);
 }
 
-export function getDb() {
-  const dbPath = process.env.TREKKER_DB_PATH;
+function getResolvedDbPath(): string {
+  const dbPath = dbPathStorage.getStore() ?? process.env.TREKKER_DB_PATH;
   if (!dbPath) {
     throw new Error('TREKKER_DB_PATH environment variable not set');
   }
 
-  if (db && currentDbPath === dbPath) {
-    return db;
+  return dbPath;
+}
+
+export function runWithDbPath<T>(dbPath: string, callback: () => T): T {
+  return dbPathStorage.run(dbPath, callback);
+}
+
+export function getDb() {
+  const dbPath = getResolvedDbPath();
+  const existingDb = drizzleInstances.get(dbPath);
+  if (existingDb) {
+    return existingDb;
   }
 
-  if (sqliteInstance) {
-    sqliteInstance.close();
-    sqliteInstance = null;
-    db = null;
-  }
-
-  sqliteInstance = new Database(dbPath);
+  const sqliteInstance = new Database(dbPath);
   migrateProjectConfigTable(sqliteInstance);
-  db = drizzle(sqliteInstance, { schema });
-  currentDbPath = dbPath;
+  const db = drizzle(sqliteInstance, { schema });
+  sqliteInstances.set(dbPath, sqliteInstance);
+  drizzleInstances.set(dbPath, db);
   return db;
 }
 
 export function getSqliteInstance() {
+  const dbPath = getResolvedDbPath();
+  let sqliteInstance = sqliteInstances.get(dbPath);
   if (!sqliteInstance) {
     getDb(); // Initialize if not already
+    sqliteInstance = sqliteInstances.get(dbPath);
   }
+
   return sqliteInstance;
 }
 
-export function resetDb() {
-  if (sqliteInstance) {
+export function resetDb(dbPath?: string) {
+  if (dbPath) {
+    sqliteInstances.get(dbPath)?.close();
+    sqliteInstances.delete(dbPath);
+    drizzleInstances.delete(dbPath);
+    return;
+  }
+
+  for (const sqliteInstance of sqliteInstances.values()) {
     sqliteInstance.close();
   }
-  sqliteInstance = null;
-  db = null;
-  currentDbPath = null;
+
+  sqliteInstances.clear();
+  drizzleInstances.clear();
 }

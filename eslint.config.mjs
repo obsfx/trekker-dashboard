@@ -329,6 +329,7 @@ export default tseslint.config(
     rules: {
       'no-magic-numbers': 'off',
       'no-console': 'off',
+      'no-restricted-imports': 'off',
       '@typescript-eslint/no-require-imports': 'off',
     },
   }
