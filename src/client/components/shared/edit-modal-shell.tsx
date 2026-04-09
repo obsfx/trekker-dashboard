@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem } from "@/components/breadcrumb";
-import { DeleteConfirmation } from "./delete-confirmation";
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import { Breadcrumb } from '@/components/breadcrumb';
+import { DeleteConfirmation } from '@/components/shared/delete-confirmation';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface EditModalShellProps {
   open: boolean;
@@ -60,8 +61,10 @@ export function EditModalShell({
               form={formId}
               size="sm"
               disabled={isSubmitting}
+              loading={isSubmitting}
+              loadingText="Saving"
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              Save
             </Button>
           </div>
         </div>

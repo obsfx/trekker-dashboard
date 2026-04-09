@@ -1,72 +1,48 @@
-"use client";
+'use client';
 
-import { NavLink } from "react-router-dom";
-import { Plus, Package, GitBranchPlus, Kanban, List, History } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { NotificationToggle } from "@/components/notification-toggle";
-import { cn } from "@/lib/utils";
+import { GitBranchPlus } from 'lucide-react';
+import { useState } from 'react';
+
+import { AppHeaderActions } from '@/components/app-header-actions';
+import { AppNavigation } from '@/components/app-navigation';
+import { ProjectConfigDialog } from '@/components/project-config-dialog';
+import type { ProjectConfig } from '@/types';
 
 interface AppHeaderProps {
   projectName?: string;
+  projectConfig?: ProjectConfig;
   onNewClick?: () => void;
 }
 
-const navItems = [
-  { to: "/", label: "Kanban", icon: Kanban },
-  { to: "/list", label: "List", icon: List },
-  { to: "/history", label: "History", icon: History },
-];
+export function AppHeader({ projectName, projectConfig, onNewClick }: AppHeaderProps) {
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
 
-export function AppHeader({ projectName, onNewClick }: AppHeaderProps) {
   return (
-    <header className="flex items-center justify-between border-b px-4 py-2 bg-accent/50">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <GitBranchPlus />
-          <h1 className="text-lg font-bold">trekker</h1>
-        </div>
-
-        <nav className="flex items-center gap-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                )
-              }
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
-
-      <div className="flex gap-6">
-        {projectName && (
-          <div className="flex items-center gap-1">
-            <Package className="text-muted-foreground" width={16} />
-            <span className="text-sm text-muted-foreground">{projectName}</span>
+    <>
+      <header className="flex items-center justify-between border-b px-4 py-2 bg-accent/50">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <GitBranchPlus />
+            <h1 className="text-lg font-bold">trekker</h1>
           </div>
-        )}
-        <div className="flex items-center gap-2">
-          {onNewClick && (
-            <Button size="sm" onClick={onNewClick}>
-              <Plus className="mr-1 h-4 w-4" />
-              New
-            </Button>
-          )}
-          <NotificationToggle />
-          <ThemeToggle />
+
+          <AppNavigation />
         </div>
-      </div>
-    </header>
+
+        <AppHeaderActions
+          projectName={projectName}
+          projectConfig={projectConfig}
+          onNewClick={onNewClick}
+          onProjectConfigClick={() => setShowConfigDialog(true)}
+        />
+      </header>
+
+      <ProjectConfigDialog
+        open={showConfigDialog}
+        onOpenChange={setShowConfigDialog}
+        projectName={projectName}
+        projectConfig={projectConfig}
+      />
+    </>
   );
 }

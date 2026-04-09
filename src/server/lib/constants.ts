@@ -1,0 +1,22 @@
+export const DEFAULT_HISTORY_QUERY_LIMIT = 50;
+export const DEFAULT_LIST_QUERY_LIMIT = 50;
+export const DEFAULT_PAGE = 1;
+export const DEFAULT_PRIORITY = 2;
+export const DEFAULT_SEARCH_QUERY_LIMIT = 20;
+export const EVENT_POLL_INTERVAL_MS = 2000;
+export const HTTP_STATUS_BAD_REQUEST = 400;
+export const HTTP_STATUS_CONFLICT = 409;
+export const HTTP_STATUS_CREATED = 201;
+export const HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
+export const HTTP_STATUS_NOT_FOUND = 404;
+export const MAX_PRIORITY = 5;
+export const SQLITE_MILLISECONDS = 1000;
+
+export const APP_ERROR_STATUS_CODES = [
+  HTTP_STATUS_BAD_REQUEST,
+  HTTP_STATUS_NOT_FOUND,
+  HTTP_STATUS_CONFLICT,
+  HTTP_STATUS_INTERNAL_SERVER_ERROR,
+] as const;
+
+export type AppErrorStatusCode = (typeof APP_ERROR_STATUS_CODES)[number];

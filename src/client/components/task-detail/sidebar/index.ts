@@ -1,3 +1,3 @@
-export { DetailsSection } from "./details-section";
-export { LinksSection } from "./links-section";
-export { SubtasksSection } from "./subtasks-section";
+export { DetailsSection } from '@/components/task-detail/sidebar/details-section';
+export { LinksSection } from '@/components/task-detail/sidebar/links-section';
+export { SubtasksSection } from '@/components/task-detail/sidebar/subtasks-section';

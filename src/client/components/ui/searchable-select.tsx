@@ -1,13 +1,15 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useOnClickOutside } from "usehooks-ts";
-import { Check, ChevronsUpDown, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "./button";
-import { Input } from "./input";
+import { Check, ChevronsUpDown, X } from 'lucide-react';
+import * as React from 'react';
+import { useOnClickOutside } from 'usehooks-ts';
 
-export interface SearchableSelectOption {
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { SEARCHABLE_SELECT_FOCUS_DELAY_MS } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+
+interface SearchableSelectOption {
   value: string;
   label: string;
 }
@@ -25,12 +27,12 @@ export function SearchableSelect({
   options,
   value,
   onValueChange,
-  placeholder = "Select...",
-  emptyText = "No results found",
+  placeholder = 'Select...',
+  emptyText = 'No results found',
   className,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = React.useState('');
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -48,29 +50,70 @@ export function SearchableSelect({
 
   React.useEffect(() => {
     if (open) {
-      setTimeout(() => inputRef.current?.focus(), 10);
+      setTimeout(() => inputRef.current?.focus(), SEARCHABLE_SELECT_FOCUS_DELAY_MS);
     }
   }, [open]);
 
   useOnClickOutside(containerRef as React.RefObject<HTMLElement>, () => {
     setOpen(false);
-    setSearch("");
+    setSearch('');
   });
 
   const handleSelect = (optionValue: string) => {
-    onValueChange(optionValue === value ? null : optionValue);
+    if (optionValue === value) {
+      onValueChange(null);
+    } else {
+      onValueChange(optionValue);
+    }
+
     setOpen(false);
-    setSearch("");
+    setSearch('');
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onValueChange(null);
-    setSearch("");
+    setSearch('');
   };
 
+  let selectedLabel = placeholder;
+  if (selectedOption) {
+    selectedLabel = selectedOption.label;
+  }
+
+  let optionsContent = filteredOptions.map((option) => {
+    const isSelected = value === option.value;
+    let checkIconClassName = 'mr-2 h-4 w-4 opacity-0';
+    if (isSelected) {
+      checkIconClassName = 'mr-2 h-4 w-4 opacity-100';
+    }
+
+    return (
+      <button
+        key={option.value}
+        type="button"
+        className={cn(
+          'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground',
+          isSelected && 'bg-accent'
+        )}
+        onClick={() => handleSelect(option.value)}
+      >
+        <Check className={checkIconClassName} />
+        <span className="truncate">{option.label}</span>
+      </button>
+    );
+  });
+
+  if (filteredOptions.length === 0) {
+    optionsContent = [
+      <div key="empty" className="py-6 text-center text-sm text-muted-foreground">
+        {emptyText}
+      </div>,
+    ];
+  }
+
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={containerRef} className={cn('relative', className)}>
       <Button
         type="button"
         variant="outline"
@@ -81,16 +124,9 @@ export function SearchableSelect({
           setOpen(!open);
         }}
       >
-        <span className="truncate">
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <span className="truncate">{selectedLabel}</span>
         <div className="flex items-center gap-1 ml-2 shrink-0">
-          {value && (
-            <X
-              className="h-4 w-4 opacity-50 hover:opacity-100"
-              onClick={handleClear}
-            />
-          )}
+          {value && <X className="h-4 w-4 opacity-50 hover:opacity-100" onClick={handleClear} />}
           <ChevronsUpDown className="h-4 w-4 opacity-50" />
         </div>
       </Button>
@@ -106,33 +142,7 @@ export function SearchableSelect({
               className="h-8"
             />
           </div>
-          <div className="max-h-[200px] overflow-y-auto p-1">
-            {filteredOptions.length === 0 ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                {emptyText}
-              </div>
-            ) : (
-              filteredOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                    value === option.value && "bg-accent"
-                  )}
-                  onClick={() => handleSelect(option.value)}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  <span className="truncate">{option.label}</span>
-                </button>
-              ))
-            )}
-          </div>
+          <div className="max-h-[200px] overflow-y-auto p-1">{optionsContent}</div>
         </div>
       )}
     </div>

@@ -1,10 +1,12 @@
-"use client";
+'use client';
 
-import { Pencil } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem } from "@/components/breadcrumb";
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { Pencil } from 'lucide-react';
+
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import { Breadcrumb } from '@/components/breadcrumb';
+import { MarkdownRenderer } from '@/components/markdown-renderer';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface DetailModalShellProps {
   open: boolean;
@@ -25,18 +27,20 @@ export function DetailModalShell({
   onEdit,
   children,
 }: DetailModalShellProps) {
+  let descriptionContent = <p className="text-sm text-muted-foreground italic">No description</p>;
+  if (description) {
+    descriptionContent = <MarkdownRenderer content={description} />;
+  }
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-4xl p-0 gap-0 max-h-[90vh] overflow-hidden">
-        {/* Header */}
         <div className="p-4 border-b flex items-center justify-between">
           <Breadcrumb items={breadcrumbItems} />
         </div>
 
-        {/* Main content - scrollable */}
         <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
           <div className="flex flex-col min-w-0">
-            {/* Title section */}
             <div className="px-4 pt-4 pb-2 flex justify-between items-start">
               <h2 className="text-xl font-semibold">{title}</h2>
               <Button variant="ghost" size="sm" onClick={onEdit}>
@@ -45,21 +49,13 @@ export function DetailModalShell({
               </Button>
             </div>
 
-            {/* Description section */}
             <div className="px-4 pb-4">
               <h4 className="text-xs uppercase text-muted-foreground font-semibold mb-2">
                 Description
               </h4>
-              {description ? (
-                <MarkdownRenderer content={description} />
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No description
-                </p>
-              )}
+              {descriptionContent}
             </div>
 
-            {/* Sidebar content */}
             {children}
           </div>
         </div>

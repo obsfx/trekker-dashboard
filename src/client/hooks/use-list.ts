@@ -1,8 +1,10 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 
-export type ListEntityType = "epic" | "task" | "subtask";
+import { fetchQuery } from '@/hooks/api-query';
+
+export type ListEntityType = 'epic' | 'task' | 'subtask';
 
 export interface ListItem {
   type: ListEntityType;
@@ -34,44 +36,25 @@ export interface ListFilters {
 }
 
 async function fetchList(filters: ListFilters): Promise<ListResponse> {
-  const params = new URLSearchParams();
-
-  if (filters.types?.length) {
-    params.set("type", filters.types.join(","));
-  }
-  if (filters.statuses?.length) {
-    params.set("status", filters.statuses.join(","));
-  }
-  if (filters.priorities?.length) {
-    params.set("priority", filters.priorities.join(","));
-  }
-  if (filters.sort) {
-    params.set("sort", filters.sort);
-  }
-  if (filters.limit) {
-    params.set("limit", filters.limit.toString());
-  }
-  if (filters.page) {
-    params.set("page", filters.page.toString());
-  }
-  if (filters.since) {
-    params.set("since", filters.since);
-  }
-  if (filters.until) {
-    params.set("until", filters.until);
-  }
-
-  const res = await fetch(`/api/list?${params.toString()}`);
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to fetch list");
-  }
-  return res.json();
+  return fetchQuery(
+    '/api/list',
+    {
+      type: filters.types,
+      status: filters.statuses,
+      priority: filters.priorities,
+      sort: filters.sort,
+      limit: filters.limit,
+      page: filters.page,
+      since: filters.since,
+      until: filters.until,
+    },
+    'Failed to fetch list'
+  );
 }
 
 export function useList(filters: ListFilters) {
   return useQuery({
-    queryKey: ["list", filters],
+    queryKey: ['list', filters],
     queryFn: () => fetchList(filters),
   });
 }

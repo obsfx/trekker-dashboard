@@ -1,21 +1,22 @@
-"use client";
+'use client';
 
-import { UseFormReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import type { UseFormReturn } from 'react-hook-form';
+
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import { EditModalShell, PrioritySelect, StatusSelect } from '@/components/shared';
+import type { TaskFormData } from '@/components/task-detail/schema';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { StatusSelect, PrioritySelect, EditModalShell } from "@/components/shared";
-import { TASK_STATUSES } from "@/lib/constants";
-import { TaskFormData } from "./schema";
-import type { Epic } from "@/types";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { TASK_STATUSES } from '@/lib/constants';
+import type { Epic } from '@/types';
 
 interface TaskEditProps {
   form: UseFormReturn<TaskFormData>;
@@ -50,18 +51,27 @@ export function TaskEdit({
     handleSubmit,
     formState: { isSubmitting, errors },
   } = form;
-  const title = watch("title");
-  const description = watch("description");
-  const status = watch("status");
-  const priority = watch("priority");
-  const tags = watch("tags");
-  const epicId = watch("epicId");
+  const title = watch('title');
+  const description = watch('description');
+  const status = watch('status');
+  const priority = watch('priority');
+  const tags = watch('tags');
+  const epicId = watch('epicId');
 
   const handleFormSubmit = async (data: TaskFormData) => {
     const success = await onSubmit(data);
     if (success) {
       onCancel();
     }
+  };
+
+  const handleEpicChange = (value: string) => {
+    if (value === 'none') {
+      setValue('epicId', null);
+      return;
+    }
+
+    setValue('epicId', value);
   };
 
   return (
@@ -78,72 +88,55 @@ export function TaskEdit({
       onDeleteConfirm={onDeleteConfirm}
       onDeleteCancel={onDeleteCancel}
     >
-      <form
-        id="task-edit-form"
-        onSubmit={handleSubmit(handleFormSubmit)}
-        className="space-y-4 p-4"
-      >
-        {/* Title */}
+      <form id="task-edit-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-4">
         <div className="space-y-2">
           <Label>Title</Label>
           <Input
             value={title}
-            onChange={(e) => setValue("title", e.target.value)}
+            onChange={(e) => setValue('title', e.target.value)}
             placeholder="Task title"
             className="text-lg font-semibold"
           />
-          {errors.title && (
-            <p className="text-xs text-destructive">{errors.title.message}</p>
-          )}
+          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
 
-        {/* Description */}
         <div className="space-y-2">
           <Label>Description</Label>
           <Textarea
             value={description}
-            onChange={(e) => setValue("description", e.target.value)}
+            onChange={(e) => setValue('description', e.target.value)}
             placeholder="Task description"
             rows={4}
           />
         </div>
 
-        {/* Status and Priority */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>Status</Label>
             <StatusSelect
               value={status}
-              onChange={(v) => setValue("status", v)}
+              onChange={(v) => setValue('status', v)}
               statuses={TASK_STATUSES}
             />
           </div>
           <div className="space-y-2">
             <Label>Priority</Label>
-            <PrioritySelect
-              value={priority}
-              onChange={(v) => setValue("priority", v)}
-            />
+            <PrioritySelect value={priority} onChange={(v) => setValue('priority', v)} />
           </div>
         </div>
 
-        {/* Tags */}
         <div className="space-y-2">
           <Label>Tags (comma-separated)</Label>
           <Input
             value={tags}
-            onChange={(e) => setValue("tags", e.target.value)}
+            onChange={(e) => setValue('tags', e.target.value)}
             placeholder="bug, frontend, urgent"
           />
         </div>
 
-        {/* Epic */}
         <div className="space-y-2">
           <Label>Epic</Label>
-          <Select
-            value={epicId || "none"}
-            onValueChange={(v) => setValue("epicId", v === "none" ? null : v)}
-          >
+          <Select value={epicId || 'none'} onValueChange={handleEpicChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { Plus, Archive } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import type { Task, Epic } from "@/types";
-import { TaskCard } from "./task-card";
-import { EpicCard } from "./epic-card";
-import { compareBySortOption } from "@/lib/sort";
+import { Archive, Plus } from 'lucide-react';
+import { useMemo, useState } from 'react';
+
 import {
   ColumnFilter,
-  DEFAULT_FILTER,
   type ColumnFilterState,
-} from "./column-filter";
+  DEFAULT_FILTER,
+} from '@/components/kanban/column-filter';
+import { EpicCard } from '@/components/kanban/epic-card';
+import { TaskCard } from '@/components/kanban/task-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { compareBySortOption } from '@/lib/sort';
+import type { Epic, Task } from '@/types';
 
 interface KanbanColumnProps {
   label: string;
@@ -40,12 +41,12 @@ export function KanbanColumn({
   const [filter, setFilter] = useState<ColumnFilterState>(DEFAULT_FILTER);
 
   const filteredEpics = useMemo(() => {
-    if (filter.type === "task") return [];
+    if (filter.type === 'task') return [];
     return [...epics].sort((a, b) => compareBySortOption(a, b, filter.sort));
   }, [epics, filter]);
 
   const filteredTasks = useMemo(() => {
-    if (filter.type === "epic") return [];
+    if (filter.type === 'epic') return [];
     return [...tasks].sort((a, b) => compareBySortOption(a, b, filter.sort));
   }, [tasks, filter]);
 
@@ -57,20 +58,16 @@ export function KanbanColumn({
     return epic?.title || epicId;
   };
 
-  const getSubtasks = (taskId: string) =>
-    allTasks.filter((t) => t.parentTaskId === taskId);
+  const getSubtasks = (taskId: string) => allTasks.filter((t) => t.parentTaskId === taskId);
 
   const getTaskCountForEpic = (epicId: string) => {
-    const epicTasks = allTasks.filter(
-      (t) => t.epicId === epicId && !t.parentTaskId
-    );
-    const completed = epicTasks.filter((t) => t.status === "completed").length;
+    const epicTasks = allTasks.filter((t) => t.epicId === epicId && !t.parentTaskId);
+    const completed = epicTasks.filter((t) => t.status === 'completed').length;
     return { total: epicTasks.length, completed };
   };
 
   return (
     <div className="w-[280px] min-w-[280px] max-w-[320px] flex flex-col border rounded-md">
-      {/* Column Header */}
       <div className="flex items-center justify-between border-b p-2 bg-accent/50">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-sm">{label}</span>
@@ -103,7 +100,6 @@ export function KanbanColumn({
         </div>
       </div>
 
-      {/* Column Content */}
       <div className="flex-1 min-h-[100px] overflow-y-auto">
         <div className="flex flex-col gap-2 p-2">
           {filteredEpics.map((epic) => (

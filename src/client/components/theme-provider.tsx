@@ -1,13 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
-type Theme = "light" | "dark" | "system";
-type ResolvedTheme = "light" | "dark";
+type Theme = 'light' | 'dark' | 'system';
+type ResolvedTheme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -17,26 +11,31 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const STORAGE_KEY = "theme";
+const STORAGE_KEY = 'theme';
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  if (typeof window === 'undefined') {
+    return 'light';
+  }
+
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+
+  return 'light';
 }
 
 function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === 'undefined') return 'system';
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark" || stored === "system") {
+  if (stored === 'light' || stored === 'dark' || stored === 'system') {
     return stored;
   }
-  return "system";
+  return 'system';
 }
 
 function resolveTheme(theme: Theme): ResolvedTheme {
-  if (theme === "system") {
+  if (theme === 'system') {
     return getSystemTheme();
   }
   return theme;
@@ -50,16 +49,14 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = 'system',
   disableTransitionOnChange = false,
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") return defaultTheme;
+    if (typeof window === 'undefined') return defaultTheme;
     return getStoredTheme();
   });
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
-    resolveTheme(theme)
-  );
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(theme));
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
@@ -73,30 +70,30 @@ export function ThemeProvider({
     const root = document.documentElement;
 
     if (disableTransitionOnChange) {
-      root.style.setProperty("transition", "none");
+      root.style.setProperty('transition', 'none');
     }
 
-    root.classList.remove("light", "dark");
+    root.classList.remove('light', 'dark');
     root.classList.add(resolved);
 
     if (disableTransitionOnChange) {
       // Force a reflow
       void root.offsetHeight;
-      root.style.removeProperty("transition");
+      root.style.removeProperty('transition');
     }
   }, [theme, disableTransitionOnChange]);
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== "system") return;
+    if (theme !== 'system') return;
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {
       setResolvedTheme(getSystemTheme());
     };
 
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   return (
@@ -109,7 +106,7 @@ export function ThemeProvider({
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
 }

@@ -1,1 +1,1 @@
-export { useUIStore } from "./ui-store";
+export { useUIStore } from '@/stores/ui-store';

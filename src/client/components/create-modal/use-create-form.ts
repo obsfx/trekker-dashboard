@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { getDefaultCreateFormValues } from '@/components/create-modal/create-form.utils';
 import {
-  epicFormSchema,
-  taskFormSchema,
+  createFormSchema,
+  type CreateFormValues,
   subtaskFormSchema,
-  type EpicFormData,
-  type TaskFormData,
-  type SubtaskFormData,
-} from "./schema";
-import type { CreateType } from "@/types";
+} from '@/components/create-modal/schema';
+import { getErrorMessage } from '@/lib/errors';
+import type { CreateType } from '@/types';
 
 interface UseCreateFormOptions {
   type: CreateType;
@@ -21,117 +21,100 @@ interface UseCreateFormOptions {
   onCreated: () => void;
 }
 
-const getSchema = (type: CreateType) => {
-  switch (type) {
-    case "epic":
-      return epicFormSchema;
-    case "subtask":
-      return subtaskFormSchema;
-    default:
-      return taskFormSchema;
-  }
-};
+const SCHEMA_BY_TYPE = {
+  epic: createFormSchema,
+  task: createFormSchema,
+  subtask: subtaskFormSchema,
+} as const;
 
-const getDefaultValues = (type: CreateType, defaultStatus?: string) => {
-  const base = {
-    title: "",
-    description: "",
-    status: defaultStatus || "todo",
-    priority: 2,
+function toCreateEpicPayload(data: CreateFormValues) {
+  return {
+    title: data.title.trim(),
+    description: data.description.trim() || null,
+    status: data.status,
+    priority: data.priority,
   };
+}
 
-  if (type === "epic") {
-    return base;
-  }
+function toCreateTaskPayload(data: CreateFormValues) {
+  return {
+    title: data.title.trim(),
+    description: data.description.trim() || null,
+    status: data.status,
+    priority: data.priority,
+    tags: data.tags.trim() || null,
+    epicId: data.epicId || null,
+    parentTaskId: null,
+  };
+}
 
-  if (type === "subtask") {
-    return { ...base, tags: "", parentTaskId: "" };
-  }
+function toCreateSubtaskPayload(data: CreateFormValues) {
+  return {
+    title: data.title.trim(),
+    description: data.description.trim() || null,
+    status: data.status,
+    priority: data.priority,
+    tags: data.tags.trim() || null,
+    epicId: null,
+    parentTaskId: data.parentTaskId,
+  };
+}
 
-  return { ...base, tags: "", epicId: null };
-};
-
-export function useCreateForm({
-  type,
-  defaultStatus,
-  onClose,
-  onCreated,
-}: UseCreateFormOptions) {
-  const form = useForm({
-    resolver: zodResolver(getSchema(type)),
-    defaultValues: getDefaultValues(type, defaultStatus),
+export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCreateFormOptions) {
+  const form = useForm<CreateFormValues>({
+    resolver: zodResolver(SCHEMA_BY_TYPE[type]),
+    defaultValues: getDefaultCreateFormValues(defaultStatus),
   });
 
   // Reset form when type changes
   useEffect(() => {
-    form.reset(getDefaultValues(type, defaultStatus));
+    form.reset(getDefaultCreateFormValues(defaultStatus));
   }, [type, defaultStatus, form]);
 
   const {
     formState: { isSubmitting },
   } = form;
 
-  const createEpic = async (data: EpicFormData) => {
-    const response = await fetch("/api/epics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: data.title.trim(),
-        description: data.description.trim() || null,
-        status: data.status,
-        priority: data.priority,
-      }),
+  const createEpic = async (data: CreateFormValues) => {
+    const response = await fetch('/api/epics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toCreateEpicPayload(data)),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to create epic");
+      throw new Error(error.error || 'Failed to create epic');
     }
 
     return response.json();
   };
 
-  const createTask = async (data: TaskFormData) => {
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: data.title.trim(),
-        description: data.description.trim() || null,
-        status: data.status,
-        priority: data.priority,
-        tags: data.tags.trim() || null,
-        epicId: data.epicId || null,
-        parentTaskId: null,
-      }),
+  const createTask = async (data: CreateFormValues) => {
+    const response = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toCreateTaskPayload(data)),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to create task");
+      throw new Error(error.error || 'Failed to create task');
     }
 
     return response.json();
   };
 
-  const createSubtask = async (data: SubtaskFormData) => {
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: data.title.trim(),
-        description: data.description.trim() || null,
-        status: data.status,
-        priority: data.priority,
-        tags: data.tags.trim() || null,
-        epicId: null,
-        parentTaskId: data.parentTaskId,
-      }),
+  const createSubtask = async (data: CreateFormValues) => {
+    const response = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(toCreateSubtaskPayload(data)),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to create subtask");
+      throw new Error(error.error || 'Failed to create subtask');
     }
 
     return response.json();
@@ -142,26 +125,26 @@ export function useCreateForm({
       try {
         let created;
 
-        if (type === "epic") {
-          created = await createEpic(data as EpicFormData);
+        if (type === 'epic') {
+          created = await createEpic(data);
           toast.success(`Epic ${created.id} created`);
-        } else if (type === "subtask") {
-          created = await createSubtask(data as SubtaskFormData);
+        } else if (type === 'subtask') {
+          created = await createSubtask(data);
           toast.success(`Subtask ${created.id} created`);
         } else {
-          created = await createTask(data as TaskFormData);
+          created = await createTask(data);
           toast.success(`Task ${created.id} created`);
         }
 
         onClose();
         onCreated();
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to create");
+        toast.error(getErrorMessage(error, 'Failed to create'));
       }
     },
     (errors) => {
       const firstError = Object.values(errors)[0];
-      if (firstError?.message && typeof firstError.message === "string") {
+      if (firstError?.message && typeof firstError.message === 'string') {
         toast.error(firstError.message);
       }
     }

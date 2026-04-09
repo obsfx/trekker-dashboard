@@ -1,11 +1,13 @@
-import { Hono } from "hono";
-import { getDb, getSqliteInstance } from "../lib/db";
-import { DatabaseError } from "../errors";
+import { DatabaseError } from '@server/errors';
+import { DEFAULT_HISTORY_QUERY_LIMIT, DEFAULT_PAGE } from '@server/lib/constants';
+import { getDb, getSqliteInstance } from '@server/lib/db';
+import { parseCsvQuery, parseQueryNumber } from '@server/lib/query';
+import { Hono } from 'hono';
 
 const app = new Hono();
 
-type HistoryEntityType = "epic" | "task" | "subtask" | "comment" | "dependency";
-type HistoryAction = "create" | "update" | "delete";
+type HistoryEntityType = 'epic' | 'task' | 'subtask' | 'comment' | 'dependency';
+type HistoryAction = 'create' | 'update' | 'delete';
 
 interface HistoryResultRow {
   id: number;
@@ -17,22 +19,30 @@ interface HistoryResultRow {
   created_at: number;
 }
 
-app.get("/", async (c) => {
+function parseHistoryJson(value: string | null): unknown {
+  if (!value) {
+    return null;
+  }
+
+  return JSON.parse(value);
+}
+
+app.get('/', async (c) => {
   getDb();
   const sqlite = getSqliteInstance();
   if (!sqlite) {
-    throw new DatabaseError("Database not initialized");
+    throw new DatabaseError('Database not initialized');
   }
 
-  const entityId = c.req.query("entityId");
-  const typeParam = c.req.query("type");
-  const types = typeParam ? (typeParam.split(",") as HistoryEntityType[]) : undefined;
-  const actionParam = c.req.query("action");
-  const actions = actionParam ? (actionParam.split(",") as HistoryAction[]) : undefined;
-  const since = c.req.query("since");
-  const until = c.req.query("until");
-  const limit = parseInt(c.req.query("limit") || "50", 10);
-  const page = parseInt(c.req.query("page") || "1", 10);
+  const entityId = c.req.query('entityId');
+  const typeParam = c.req.query('type');
+  const types = parseCsvQuery(typeParam) as HistoryEntityType[] | undefined;
+  const actionParam = c.req.query('action');
+  const actions = parseCsvQuery(actionParam) as HistoryAction[] | undefined;
+  const since = c.req.query('since');
+  const until = c.req.query('until');
+  const limit = parseQueryNumber(c.req.query('limit'), DEFAULT_HISTORY_QUERY_LIMIT);
+  const page = parseQueryNumber(c.req.query('page'), DEFAULT_PAGE);
   const offset = (page - 1) * limit;
 
   // Build WHERE conditions
@@ -40,40 +50,46 @@ app.get("/", async (c) => {
   const params: (string | number)[] = [];
 
   if (entityId) {
-    conditions.push("entity_id = ?");
+    conditions.push('entity_id = ?');
     params.push(entityId);
   }
 
   if (types && types.length > 0) {
-    const placeholders = types.map(() => "?").join(", ");
+    const placeholders = types.map(() => '?').join(', ');
     conditions.push(`entity_type IN (${placeholders})`);
     params.push(...types);
   }
 
   if (actions && actions.length > 0) {
-    const placeholders = actions.map(() => "?").join(", ");
+    const placeholders = actions.map(() => '?').join(', ');
     conditions.push(`action IN (${placeholders})`);
     params.push(...actions);
   }
 
   if (since) {
     const sinceDate = new Date(since);
-    conditions.push("created_at >= ?");
+    conditions.push('created_at >= ?');
     params.push(sinceDate.getTime());
   }
 
   if (until) {
     const untilDate = new Date(until);
-    conditions.push("created_at <= ?");
+    conditions.push('created_at <= ?');
     params.push(untilDate.getTime());
   }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  let whereClause = '';
+  if (conditions.length > 0) {
+    whereClause = `WHERE ${conditions.join(' AND ')}`;
+  }
 
   // Count total results
   const countQuery = `SELECT COUNT(*) as total FROM events ${whereClause}`;
   const countResult = sqlite.query(countQuery).get(...params) as { total: number } | null;
-  const total = countResult?.total ?? 0;
+  let total = 0;
+  if (countResult) {
+    total = countResult.total;
+  }
 
   // Get paginated results (newest first)
   const selectQuery = `
@@ -95,8 +111,8 @@ app.get("/", async (c) => {
       action: row.action as HistoryAction,
       entityType: row.entity_type as HistoryEntityType,
       entityId: row.entity_id,
-      snapshot: row.snapshot ? JSON.parse(row.snapshot) : null,
-      changes: row.changes ? JSON.parse(row.changes) : null,
+      snapshot: parseHistoryJson(row.snapshot),
+      changes: parseHistoryJson(row.changes),
       timestamp: new Date(row.created_at).toISOString(),
     })),
   });

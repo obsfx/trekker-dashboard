@@ -1,19 +1,6 @@
-// Re-export shared types and constants
-export {
-  TASK_STATUSES,
-  EPIC_STATUSES,
-  PREFIX_MAP,
-  type TaskStatus,
-  type EpicStatus,
-  type Priority,
-  type EntityType,
-  type CreateEpicInput,
-  type UpdateEpicInput,
-  type CreateTaskInput,
-  type UpdateTaskInput,
-  type CreateCommentInput,
-  type UpdateCommentInput,
-} from "@/lib/types";
+import type { ProjectConfig } from '@/lib/types';
+
+export type { ProjectConfig } from '@/lib/types';
 
 // Webapp-specific types (dates as strings from JSON API)
 export interface Project {
@@ -21,6 +8,7 @@ export interface Project {
   name: string;
   createdAt: string;
   updatedAt: string;
+  config: ProjectConfig;
 }
 
 export interface Epic {
@@ -60,18 +48,11 @@ export interface Comment {
   updatedAt: string;
 }
 
-export interface Dependency {
-  id: string;
-  taskId: string;
-  dependsOnId: string;
-  createdAt: string;
-}
-
-export type CreateType = "epic" | "task" | "subtask";
+export type CreateType = 'epic' | 'task' | 'subtask';
 
 export interface CreateModalDefaults {
   status?: string;
   type?: CreateType;
 }
 
-export type ConnectionStatus = "connected" | "connecting" | "disconnected";
+export type ConnectionStatus = 'connected' | 'connecting' | 'disconnected';

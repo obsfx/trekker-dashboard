@@ -1,38 +1,32 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useAppData, useBulkArchiveCompleted } from "@/hooks/use-data";
-import { useTaskEvents } from "@/hooks/use-task-events";
-import { useUIStore } from "@/stores";
-import { KanbanBoard } from "@/components/kanban";
-import { TaskDetailModal } from "@/components/task-detail";
-import { EpicDetailModal } from "@/components/epic-detail";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { KanbanBoard } from '@/components/kanban';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { getErrorMessage } from '@/lib/errors';
+import { EntityDetailModals } from '@/pages/entity-detail-modals';
+import { useKanbanPageState } from '@/pages/use-kanban-page-state';
 
 export function KanbanPage() {
-  const { tasks, epics, isLoading, error, refetch } = useAppData();
-  const bulkArchive = useBulkArchiveCompleted();
-  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const {
-    selectedTaskId,
-    selectedEpicId,
-    openTaskDetail,
-    openEpicDetail,
-    openCreateModal,
-    closeTaskDetail,
     closeEpicDetail,
-  } = useUIStore();
-
-  // Subscribe to SSE events
-  useTaskEvents(refetch);
-
-  const selectedTask = selectedTaskId
-    ? tasks.find((t) => t.id === selectedTaskId) || null
-    : null;
-
-  const selectedEpic = selectedEpicId
-    ? epics.find((e) => e.id === selectedEpicId) || null
-    : null;
+    closeTaskDetail,
+    epics,
+    error,
+    handleArchiveAllCompleted,
+    handleEpicModalTaskClick,
+    isLoading,
+    openArchiveConfirm,
+    openCreateModal,
+    openEpicDetail,
+    openTaskDetail,
+    refetch,
+    selectedEpic,
+    selectedEpicTasks,
+    selectedTask,
+    showArchiveConfirm,
+    tasks,
+    updateArchiveConfirm,
+  } = useKanbanPageState();
 
   if (isLoading && tasks.length === 0) {
     return (
@@ -45,9 +39,7 @@ export function KanbanPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center flex-1">
-        <span className="text-destructive">
-          Error: {error instanceof Error ? error.message : "Unknown error"}
-        </span>
+        <span className="text-destructive">Error: {getErrorMessage(error, 'Unknown error')}</span>
       </div>
     );
   }
@@ -61,45 +53,34 @@ export function KanbanPage() {
           onAddClick={(status) => openCreateModal({ status })}
           onTaskClick={(task) => openTaskDetail(task.id)}
           onEpicClick={(epic) => openEpicDetail(epic.id)}
-          onArchiveAllCompleted={() => setShowArchiveConfirm(true)}
+          onArchiveAllCompleted={openArchiveConfirm}
         />
       </main>
 
       <ConfirmDialog
         open={showArchiveConfirm}
-        onOpenChange={setShowArchiveConfirm}
+        onOpenChange={updateArchiveConfirm}
         title="Archive All Completed"
         description="This will move all completed tasks and epics to the archived status. This action can be undone by manually changing their status back."
         confirmLabel="Archive All"
-        onConfirm={() => bulkArchive.mutate()}
+        onConfirm={handleArchiveAllCompleted}
       />
 
-      {/* Modals */}
-      <TaskDetailModal
-        task={selectedTask}
-        epics={epics}
+      <EntityDetailModals
         allTasks={tasks}
-        open={selectedTask !== null}
-        onClose={closeTaskDetail}
-        onUpdate={refetch}
-        onTaskClick={(task) => openTaskDetail(task.id)}
-        onEpicClick={(epic) => {
+        epics={epics}
+        selectedEpic={selectedEpic}
+        selectedEpicTasks={selectedEpicTasks}
+        selectedTask={selectedTask}
+        onCloseEpicDetail={closeEpicDetail}
+        onCloseTaskDetail={closeTaskDetail}
+        onEpicDetailTaskClick={handleEpicModalTaskClick}
+        onTaskDetailEpicClick={(epic) => {
           closeTaskDetail();
           openEpicDetail(epic.id);
         }}
-      />
-
-      <EpicDetailModal
-        epic={selectedEpic}
-        tasks={selectedEpic ? tasks.filter((t) => t.epicId === selectedEpic.id) : []}
-        open={selectedEpic !== null}
-        onClose={closeEpicDetail}
+        onTaskDetailTaskClick={(task) => openTaskDetail(task.id)}
         onUpdate={refetch}
-        onTaskClick={(task) => {
-          closeEpicDetail();
-          const fullTask = tasks.find((t) => t.id === task.id);
-          if (fullTask) openTaskDetail(fullTask.id);
-        }}
       />
     </>
   );

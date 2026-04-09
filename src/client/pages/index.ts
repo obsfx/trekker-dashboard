@@ -1,3 +1,3 @@
-export { KanbanPage } from "./kanban-page";
-export { ListPage } from "./list-page";
-export { HistoryPage } from "./history-page";
+export { HistoryPage } from '@/pages/history-page';
+export { KanbanPage } from '@/pages/kanban-page';
+export { ListPage } from '@/pages/list-page';

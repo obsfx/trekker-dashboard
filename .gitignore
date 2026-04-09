@@ -33,6 +33,7 @@ coverage/
 *.tmp
 *.temp
 .cache/
+.eslintcache
 
 # TypeScript build info
 tsconfig.tsbuildinfo

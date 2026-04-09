@@ -1,9 +1,9 @@
-import { Hono } from "hono";
-import * as archiveService from "../services/archive.service";
+import * as archiveService from '@server/services/archive.service';
+import { Hono } from 'hono';
 
 const app = new Hono();
 
-app.post("/", async (c) => {
+app.post('/', async (c) => {
   const result = await archiveService.bulkArchiveCompleted();
   return c.json(result);
 });

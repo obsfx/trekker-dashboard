@@ -1,27 +1,22 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { GitBranch, Layers, SquareCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
+import { CreateForm } from '@/components/create-modal/create-form';
+import { useCreateForm } from '@/components/create-modal/use-create-form';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Layers, SquareCheck, GitBranch } from "lucide-react";
-import { CreateForm } from "./create-form";
-import { useCreateForm } from "./use-create-form";
-import type { CreateType, Epic, Task } from "@/types";
+} from '@/components/ui/select';
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import type { CreateType, Epic, Task } from '@/types';
 
 interface CreateDrawerProps {
   open: boolean;
@@ -34,9 +29,9 @@ interface CreateDrawerProps {
 }
 
 const TYPE_OPTIONS = [
-  { value: "epic", label: "Epic", icon: Layers },
-  { value: "task", label: "Task", icon: SquareCheck },
-  { value: "subtask", label: "Subtask", icon: GitBranch },
+  { value: 'epic', label: 'Epic', icon: Layers },
+  { value: 'task', label: 'Task', icon: SquareCheck },
+  { value: 'subtask', label: 'Subtask', icon: GitBranch },
 ] as const;
 
 export function CreateModal({
@@ -48,7 +43,7 @@ export function CreateModal({
   defaultStatus,
   defaultType,
 }: CreateDrawerProps) {
-  const [type, setType] = useState<CreateType>("task");
+  const [type, setType] = useState<CreateType>('task');
   const parentTasks = tasks.filter((t) => !t.parentTaskId);
 
   const { form, isSubmitting, handleSubmit } = useCreateForm({
@@ -60,7 +55,7 @@ export function CreateModal({
 
   useEffect(() => {
     if (open) {
-      setType(defaultType || "task");
+      setType(defaultType || 'task');
     }
   }, [open, defaultType]);
 
@@ -68,10 +63,7 @@ export function CreateModal({
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent
-        side="right"
-        className="p-0 flex flex-col w-full sm:max-w-md gap-0"
-      >
+      <SheetContent side="right" className="p-0 flex flex-col w-full sm:max-w-md gap-0">
         <SheetHeader className="shrink-0 border-b p-4">
           <SheetTitle className="flex items-center gap-2">
             <Icon className="h-5 w-5" />
@@ -80,11 +72,7 @@ export function CreateModal({
         </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0" showScrollbar>
-          <form
-            id="create-form"
-            onSubmit={handleSubmit}
-            className="p-4 space-y-4"
-          >
+          <form id="create-form" onSubmit={handleSubmit} className="p-4 space-y-4">
             <div className="space-y-2">
               <Label>Type</Label>
               <Select
@@ -125,8 +113,14 @@ export function CreateModal({
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" form="create-form" disabled={isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create"}
+          <Button
+            type="submit"
+            form="create-form"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+            loadingText="Creating"
+          >
+            Create
           </Button>
         </SheetFooter>
       </SheetContent>

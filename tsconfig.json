@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2020",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -14,8 +15,8 @@
     "jsx": "react-jsx",
     "types": ["bun-types"],
     "paths": {
-      "@/*": ["./src/client/*"],
-      "@server/*": ["./src/server/*"]
+      "@/*": ["src/client/*"],
+      "@server/*": ["src/server/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],

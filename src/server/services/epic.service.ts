@@ -1,17 +1,18 @@
-import { eq } from "drizzle-orm";
-import { getDb, epics, projects } from "../lib/db";
-import { generateId } from "../lib/id-generator";
-import { NotFoundError, ValidationError } from "../errors";
-import type { Epic } from "../lib/db";
+import { NotFoundError, ValidationError } from '@server/errors';
+import { DEFAULT_PRIORITY } from '@server/lib/constants';
+import type { Epic } from '@server/lib/db';
+import { epics, getDb, projects } from '@server/lib/db';
+import { generateId } from '@server/lib/id-generator';
+import { eq } from 'drizzle-orm';
 
-export interface CreateEpicInput {
+interface CreateEpicInput {
   title: string;
   description?: string | null;
   status?: string;
   priority?: number;
 }
 
-export interface UpdateEpicInput {
+interface UpdateEpicInput {
   title?: string;
   description?: string | null;
   status?: string;
@@ -22,7 +23,7 @@ async function getProject() {
   const db = getDb();
   const result = await db.select().from(projects);
   if (!result[0]) {
-    throw new ValidationError("Project not initialized");
+    throw new ValidationError('Project not initialized');
   }
   return result[0];
 }
@@ -37,7 +38,7 @@ export async function getById(id: string): Promise<Epic> {
   const result = await db.select().from(epics).where(eq(epics.id, id));
 
   if (!result[0]) {
-    throw new NotFoundError("Epic", id);
+    throw new NotFoundError('Epic', id);
   }
 
   return result[0];
@@ -46,7 +47,7 @@ export async function getById(id: string): Promise<Epic> {
 export async function create(input: CreateEpicInput): Promise<Epic> {
   const db = getDb();
   const project = await getProject();
-  const id = generateId("epic");
+  const id = await generateId('epic');
   const now = new Date();
 
   const epic = {
@@ -54,8 +55,8 @@ export async function create(input: CreateEpicInput): Promise<Epic> {
     projectId: project.id,
     title: input.title,
     description: input.description || null,
-    status: input.status || "todo",
-    priority: input.priority ?? 2,
+    status: input.status || 'todo',
+    priority: input.priority ?? DEFAULT_PRIORITY,
     createdAt: now,
     updatedAt: now,
   };

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 
 interface DeleteConfirmationProps {
   isConfirming: boolean;
@@ -32,11 +32,7 @@ export function DeleteConfirmation({
   }
 
   return (
-    <Button
-      variant="destructive"
-      size="sm"
-      onClick={onDelete}
-    >
+    <Button variant="destructive" size="sm" onClick={onDelete}>
       Delete {entityName}
     </Button>
   );

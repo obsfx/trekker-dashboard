@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { toast } from "sonner";
-import { useUIStore } from "@/stores";
-import { STATUS_LABELS } from "@/lib/constants";
-import { sendNotification } from "@/lib/notifications";
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+
+import { STATUS_LABELS } from '@/lib/constants';
+import { sendNotification } from '@/lib/notifications';
+import { useUIStore } from '@/stores';
 
 interface TaskCreatedEvent {
-  type: "task_created";
+  type: 'task_created';
   taskId: string;
   taskTitle: string;
   status: string;
@@ -15,7 +16,7 @@ interface TaskCreatedEvent {
 }
 
 interface TaskUpdatedEvent {
-  type: "task_updated";
+  type: 'task_updated';
   taskId: string;
   taskTitle: string;
   status: string;
@@ -23,14 +24,14 @@ interface TaskUpdatedEvent {
 }
 
 interface TaskDeletedEvent {
-  type: "task_deleted";
+  type: 'task_deleted';
   taskId: string;
   taskTitle: string;
   timestamp: string;
 }
 
 interface EpicCreatedEvent {
-  type: "epic_created";
+  type: 'epic_created';
   epicId: string;
   epicTitle: string;
   status: string;
@@ -38,7 +39,7 @@ interface EpicCreatedEvent {
 }
 
 interface EpicUpdatedEvent {
-  type: "epic_updated";
+  type: 'epic_updated';
   epicId: string;
   epicTitle: string;
   status: string;
@@ -46,14 +47,14 @@ interface EpicUpdatedEvent {
 }
 
 interface EpicDeletedEvent {
-  type: "epic_deleted";
+  type: 'epic_deleted';
   epicId: string;
   epicTitle: string;
   timestamp: string;
 }
 
 interface ConnectedEvent {
-  type: "connected";
+  type: 'connected';
 }
 
 type SSEEvent =
@@ -74,48 +75,48 @@ export function useTaskEvents(onTaskChange?: () => void) {
 
   useEffect(() => {
     const setStatus = useUIStore.getState().setConnectionStatus;
-    setStatus("connecting");
+    setStatus('connecting');
 
-    const eventSource = new EventSource("/api/events");
+    const eventSource = new EventSource('/api/events');
 
     eventSource.onopen = () => {
-      setStatus("connected");
+      setStatus('connected');
     };
 
     eventSource.onmessage = (event) => {
       try {
         const data: SSEEvent = JSON.parse(event.data);
 
-        if (data.type === "connected") {
-          setStatus("connected");
+        if (data.type === 'connected') {
+          setStatus('connected');
           return;
         }
 
-        let title = "";
-        let description = "";
+        let title = '';
+        let description = '';
 
         switch (data.type) {
-          case "task_created":
+          case 'task_created':
             title = `Task ${data.taskId} created`;
             description = `"${data.taskTitle}"`;
             break;
-          case "task_updated":
+          case 'task_updated':
             title = `Task ${data.taskId} updated`;
             description = `"${data.taskTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
             break;
-          case "task_deleted":
+          case 'task_deleted':
             title = `Task ${data.taskId} deleted`;
             description = `"${data.taskTitle}"`;
             break;
-          case "epic_created":
+          case 'epic_created':
             title = `Epic ${data.epicId} created`;
             description = `"${data.epicTitle}"`;
             break;
-          case "epic_updated":
+          case 'epic_updated':
             title = `Epic ${data.epicId} updated`;
             description = `"${data.epicTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
             break;
-          case "epic_deleted":
+          case 'epic_deleted':
             title = `Epic ${data.epicId} deleted`;
             description = `"${data.epicTitle}"`;
             break;
@@ -130,12 +131,12 @@ export function useTaskEvents(onTaskChange?: () => void) {
     };
 
     eventSource.onerror = () => {
-      setStatus("disconnected");
+      setStatus('disconnected');
     };
 
     return () => {
       eventSource.close();
-      setStatus("disconnected");
+      setStatus('disconnected');
     };
   }, []); // Empty dependency array - runs once on mount
 

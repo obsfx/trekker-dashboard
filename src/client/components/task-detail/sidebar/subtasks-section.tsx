@@ -1,44 +1,12 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { isTerminalStatus } from "@/lib/status";
-import { SectionHeader, StatusIcon } from "@/components/shared";
-import type { Task } from "@/types";
+import { SectionHeader } from '@/components/shared';
+import { SubtaskItem } from '@/components/task-detail/sidebar/subtask-item';
+import type { Task } from '@/types';
 
 interface SubtasksSectionProps {
   subtasks: Task[];
   onTaskClick?: (task: Task) => void;
-}
-
-interface SubtaskItemProps {
-  subtask: Task;
-  onClick: () => void;
-}
-
-function SubtaskItem({ subtask, onClick }: SubtaskItemProps) {
-  const isDone = isTerminalStatus(subtask.status);
-
-  return (
-    <Button
-      variant="ghost"
-      className="w-full justify-start h-auto p-1.5 gap-2"
-      onClick={onClick}
-    >
-      <StatusIcon status={subtask.status} />
-      <span className="font-mono text-xs text-muted-foreground">
-        {subtask.id}
-      </span>
-      <span
-        className={cn(
-          "text-sm flex-1 text-left truncate",
-          isDone && "line-through text-muted-foreground"
-        )}
-      >
-        {subtask.title}
-      </span>
-    </Button>
-  );
 }
 
 export function SubtasksSection({ subtasks, onTaskClick }: SubtasksSectionProps) {
@@ -46,7 +14,7 @@ export function SubtasksSection({ subtasks, onTaskClick }: SubtasksSectionProps)
     return null;
   }
 
-  const completedCount = subtasks.filter((s) => s.status === "completed").length;
+  const completedCount = subtasks.filter((s) => s.status === 'completed').length;
 
   return (
     <div>
@@ -55,11 +23,7 @@ export function SubtasksSection({ subtasks, onTaskClick }: SubtasksSectionProps)
       </SectionHeader>
       <div className="space-y-1">
         {subtasks.map((subtask) => (
-          <SubtaskItem
-            key={subtask.id}
-            subtask={subtask}
-            onClick={() => onTaskClick?.(subtask)}
-          />
+          <SubtaskItem key={subtask.id} subtask={subtask} onClick={() => onTaskClick?.(subtask)} />
         ))}
       </div>
     </div>

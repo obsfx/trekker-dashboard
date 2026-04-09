@@ -1,10 +1,12 @@
-import { Hono } from "hono";
-import { getDb, getSqliteInstance } from "../lib/db";
-import { ValidationError, DatabaseError } from "../errors";
+import { DatabaseError, ValidationError } from '@server/errors';
+import { DEFAULT_PAGE, DEFAULT_SEARCH_QUERY_LIMIT } from '@server/lib/constants';
+import { getDb, getSqliteInstance } from '@server/lib/db';
+import { parseCsvQuery, parseQueryNumber } from '@server/lib/query';
+import { Hono } from 'hono';
 
 const app = new Hono();
 
-type SearchEntityType = "epic" | "task" | "subtask" | "comment";
+type SearchEntityType = 'epic' | 'task' | 'subtask' | 'comment';
 
 interface SearchResultRow {
   entity_id: string;
@@ -16,41 +18,41 @@ interface SearchResultRow {
   parent_id: string | null;
 }
 
-app.get("/", async (c) => {
+app.get('/', async (c) => {
   getDb();
   const sqlite = getSqliteInstance();
   if (!sqlite) {
-    throw new DatabaseError("Database not initialized");
+    throw new DatabaseError('Database not initialized');
   }
 
-  const query = c.req.query("q");
+  const query = c.req.query('q');
   if (!query) {
     throw new ValidationError("Query parameter 'q' is required");
   }
 
-  const typeParam = c.req.query("type");
-  const types = typeParam ? (typeParam.split(",") as SearchEntityType[]) : undefined;
-  const status = c.req.query("status");
-  const limit = parseInt(c.req.query("limit") || "20", 10);
-  const page = parseInt(c.req.query("page") || "1", 10);
+  const typeParam = c.req.query('type');
+  const types = parseCsvQuery(typeParam) as SearchEntityType[] | undefined;
+  const status = c.req.query('status');
+  const limit = parseQueryNumber(c.req.query('limit'), DEFAULT_SEARCH_QUERY_LIMIT);
+  const page = parseQueryNumber(c.req.query('page'), DEFAULT_PAGE);
   const offset = (page - 1) * limit;
 
   // Build WHERE conditions
-  const conditions: string[] = ["search_index MATCH ?"];
+  const conditions: string[] = ['search_index MATCH ?'];
   const params: (string | number)[] = [query];
 
   if (types && types.length > 0) {
-    const placeholders = types.map(() => "?").join(", ");
+    const placeholders = types.map(() => '?').join(', ');
     conditions.push(`entity_type IN (${placeholders})`);
     params.push(...types);
   }
 
   if (status) {
-    conditions.push("status = ?");
+    conditions.push('status = ?');
     params.push(status);
   }
 
-  const whereClause = conditions.join(" AND ");
+  const whereClause = conditions.join(' AND ');
 
   // Count total results
   const countQuery = `

@@ -63,12 +63,21 @@ See [bun.sh/docs/installation](https://bun.sh/docs/installation) for more option
 - Epic filtering to focus on specific features
 - Task details including dependencies, subtasks, and tags
 - Create, edit, and delete tasks directly from the UI
+- Edit issue, epic, and comment prefixes from the UI
 - Real-time updates via Server-Sent Events
 - Dark mode support
 
 ## How It Works
 
 The dashboard connects to the same `.trekker/trekker.db` SQLite database used by the Trekker CLI. Any changes made in the dashboard are immediately visible in the CLI and vice versa.
+
+This includes project-scoped prefix configuration:
+
+- `issue_prefix` for tasks and subtasks
+- `epic_prefix` for epics
+- `comment_prefix` for comments
+
+Prefix changes affect only newly created IDs. Existing IDs stay unchanged.
 
 ## Related
 
