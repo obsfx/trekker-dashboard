@@ -60,6 +60,7 @@ if (typeof Bun === 'undefined') {
       const cwd = process.cwd();
       const trekkerDir = resolve(cwd, '.trekker');
       const dbPath = resolve(trekkerDir, 'trekker.db');
+      const port = parseInt(options.port, 10);
 
       // Check if .trekker directory exists
       if (!existsSync(trekkerDir)) {
@@ -75,15 +76,12 @@ if (typeof Bun === 'undefined') {
         process.exit(1);
       }
 
-      // Set environment variables
-      process.env.TREKKER_DB_PATH = dbPath;
-      process.env.PORT = options.port;
+      if (Number.isNaN(port) || port <= 0) {
+        console.error(`Error: Invalid port: ${options.port}`);
+        process.exit(1);
+      }
 
-      console.log(`Starting Trekker Dashboard on http://localhost:${options.port}`);
-      console.log(`Using database: ${dbPath}`);
-      console.log('Press Ctrl+C to stop\n');
-
-      // Import and start the server
+      // Import the production server bundle and start it explicitly.
       const serverPath = resolve(__dirname, '..', 'dist', 'server', 'index.js');
       if (!existsSync(serverPath)) {
         console.error('Error: Server bundle not found at', serverPath);
@@ -91,7 +89,32 @@ if (typeof Bun === 'undefined') {
         process.exit(1);
       }
 
-      await import(serverPath);
+      process.env.TREKKER_DB_PATH = dbPath;
+
+      const { createApp } = await import(serverPath);
+      if (typeof createApp !== 'function') {
+        console.error('Error: Server bundle does not export createApp.');
+        console.error('The package may not have been built correctly.');
+        process.exit(1);
+      }
+
+      const app = createApp();
+      const server = Bun.serve({
+        port,
+        fetch: app.fetch,
+      });
+
+      console.log(`Starting Trekker Dashboard on http://localhost:${port}`);
+      console.log(`Using database: ${dbPath}`);
+      console.log('Press Ctrl+C to stop\n');
+
+      const stopServer = () => {
+        server.stop(true);
+        process.exit(0);
+      };
+
+      process.on('SIGINT', stopServer);
+      process.on('SIGTERM', stopServer);
     });
 
   program.parse();
