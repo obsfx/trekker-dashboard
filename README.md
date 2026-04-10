@@ -71,14 +71,6 @@ See [bun.sh/docs/installation](https://bun.sh/docs/installation) for more option
 
 The dashboard connects to the same `.trekker/trekker.db` SQLite database used by the Trekker CLI. Any changes made in the dashboard are immediately visible in the CLI and vice versa.
 
-This includes project-scoped prefix configuration:
-
-- `issue_prefix` for tasks and subtasks
-- `epic_prefix` for epics
-- `comment_prefix` for comments
-
-Prefix changes affect only newly created IDs. Existing IDs stay unchanged.
-
 ## Related
 
 - [Trekker CLI](https://github.com/obsfx/trekker) - The main CLI tool for issue tracking
