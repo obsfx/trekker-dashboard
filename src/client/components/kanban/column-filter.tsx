@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { NativePopover } from "@/components/ui/native-popover";
-import { SORT_OPTIONS, type SortOption } from "@/lib/sort";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from 'lucide-react';
+import { useState } from 'react';
 
-export type TypeFilter = "all" | "epic" | "task";
+import { Button } from '@/components/ui/button';
+import { NativePopover } from '@/components/ui/native-popover';
+import { SORT_OPTIONS, type SortOption } from '@/lib/sort';
+
+export type TypeFilter = 'all' | 'epic' | 'task';
 
 export interface ColumnFilterState {
   sort: SortOption;
@@ -14,17 +15,17 @@ export interface ColumnFilterState {
 }
 
 const TYPE_OPTIONS: { value: TypeFilter; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "epic", label: "Epics only" },
-  { value: "task", label: "Tasks only" },
+  { value: 'all', label: 'All' },
+  { value: 'epic', label: 'Epics only' },
+  { value: 'task', label: 'Tasks only' },
 ];
 
 export const DEFAULT_FILTER: ColumnFilterState = {
-  sort: "created:desc",
-  type: "all",
+  sort: 'created:desc',
+  type: 'all',
 };
 
-export function isFilterActive(filter: ColumnFilterState): boolean {
+function isFilterActive(filter: ColumnFilterState): boolean {
   return filter.sort !== DEFAULT_FILTER.sort || filter.type !== DEFAULT_FILTER.type;
 }
 
@@ -34,7 +35,7 @@ interface ColumnFilterProps {
 }
 
 const nativeSelectStyles =
-  "h-8 w-full rounded-md border bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring";
+  'h-8 w-full rounded-md border bg-transparent px-2 text-sm outline-none focus:ring-1 focus:ring-ring';
 
 export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
   const [open, setOpen] = useState(false);
@@ -50,9 +51,7 @@ export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
         title="Sort & filter"
       >
         <SlidersHorizontal className="h-4 w-4" />
-        {active && (
-          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-500" />
-        )}
+        {active && <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-500" />}
       </Button>
 
       <NativePopover
@@ -61,9 +60,7 @@ export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
         className="w-52 flex flex-col gap-3"
       >
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Sort by
-          </label>
+          <label className="text-xs font-medium text-muted-foreground">Sort by</label>
           <select
             value={value.sort}
             onChange={(e) => {
@@ -83,9 +80,7 @@ export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-muted-foreground">
-            Show
-          </label>
+          <label className="text-xs font-medium text-muted-foreground">Show</label>
           <select
             value={value.type}
             onChange={(e) => {

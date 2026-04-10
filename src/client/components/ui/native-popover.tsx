@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { useOnClickOutside } from "usehooks-ts";
+import { useRef } from 'react';
+import { useOnClickOutside } from 'usehooks-ts';
 
 interface NativePopoverProps {
   open: boolean;
@@ -10,12 +10,7 @@ interface NativePopoverProps {
   className?: string;
 }
 
-export function NativePopover({
-  open,
-  onClose,
-  children,
-  className = "",
-}: NativePopoverProps) {
+export function NativePopover({ open, onClose, children, className = '' }: NativePopoverProps) {
   const ref = useRef<HTMLDivElement>(null);
   useOnClickOutside(ref as React.RefObject<HTMLElement>, onClose);
 

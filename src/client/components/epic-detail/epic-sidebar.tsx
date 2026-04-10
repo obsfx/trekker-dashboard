@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { isTerminalStatus } from "@/lib/status";
-import { Button } from "@/components/ui/button";
 import {
-  SectionHeader,
   Metadata,
+  PrioritySelect,
+  SectionHeader,
   StatusIcon,
   StatusSelect,
-  PrioritySelect,
-} from "@/components/shared";
-import { EPIC_STATUSES } from "@/lib/constants";
-import type { Task } from "@/types";
+} from '@/components/shared';
+import { Button } from '@/components/ui/button';
+import { EPIC_STATUSES } from '@/lib/constants';
+import { isTerminalStatus } from '@/lib/status';
+import { cn } from '@/lib/utils';
+import type { Task } from '@/types';
 
 interface EpicSidebarProps {
   status: string;
@@ -35,9 +35,7 @@ export function EpicSidebar({
   onTaskClick,
 }: EpicSidebarProps) {
   const epicTasks = tasks.filter((t) => !t.parentTaskId);
-  const completedTasks = epicTasks.filter((t) =>
-    isTerminalStatus(t.status),
-  ).length;
+  const completedTasks = epicTasks.filter((t) => isTerminalStatus(t.status)).length;
 
   return (
     <div className="p-4 bg-muted/30 rounded-b-md">
@@ -71,9 +69,7 @@ export function EpicSidebar({
         {/* Tasks section */}
         {epicTasks.length > 0 && (
           <div>
-            <SectionHeader
-              count={{ current: completedTasks, total: epicTasks.length }}
-            >
+            <SectionHeader count={{ current: completedTasks, total: epicTasks.length }}>
               Tasks
             </SectionHeader>
             <div className="space-y-1">
@@ -92,8 +88,8 @@ export function EpicSidebar({
                     </span>
                     <span
                       className={cn(
-                        "text-sm flex-1 text-left wrap-break-words",
-                        isDone && "line-through text-muted-foreground",
+                        'text-sm flex-1 text-left wrap-break-words',
+                        isDone && 'line-through text-muted-foreground'
                       )}
                     >
                       {task.title}

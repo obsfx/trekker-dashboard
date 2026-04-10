@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Select,
@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { STATUS_LABELS } from "@/lib/constants";
+} from '@/components/ui/select';
+import { STATUS_LABELS } from '@/lib/constants';
 
 interface StatusSelectProps {
   value: string;
@@ -16,12 +16,7 @@ interface StatusSelectProps {
   triggerClassName?: string;
 }
 
-export function StatusSelect({
-  value,
-  onChange,
-  statuses,
-  triggerClassName,
-}: StatusSelectProps) {
+export function StatusSelect({ value, onChange, statuses, triggerClassName }: StatusSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger className={triggerClassName}>

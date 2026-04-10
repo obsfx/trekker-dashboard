@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Select,
@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { PRIORITY_LABELS } from "@/lib/constants";
+} from '@/components/ui/select';
+import { PRIORITY_LABELS } from '@/lib/constants';
 
 interface PrioritySelectProps {
   value: number;
@@ -15,16 +15,9 @@ interface PrioritySelectProps {
   triggerClassName?: string;
 }
 
-export function PrioritySelect({
-  value,
-  onChange,
-  triggerClassName,
-}: PrioritySelectProps) {
+export function PrioritySelect({ value, onChange, triggerClassName }: PrioritySelectProps) {
   return (
-    <Select
-      value={value.toString()}
-      onValueChange={(v) => onChange(parseInt(v, 10))}
-    >
+    <Select value={value.toString()} onValueChange={(v) => onChange(parseInt(v, 10))}>
       <SelectTrigger className={triggerClassName}>
         <SelectValue />
       </SelectTrigger>

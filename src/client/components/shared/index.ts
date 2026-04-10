@@ -1,10 +1,8 @@
-export { DeleteConfirmation } from "./delete-confirmation";
-export { SectionHeader } from "./section-header";
-export { Metadata } from "./metadata";
-export { ConnectionIndicator } from "./connection-indicator";
-export { StatusIcon } from "./status-icon";
-export { ActionIcon, getActionColor } from "./action-icon";
-export { StatusSelect } from "./status-select";
-export { PrioritySelect } from "./priority-select";
-export { DetailModalShell } from "./detail-modal-shell";
-export { EditModalShell } from "./edit-modal-shell";
+export { ActionIcon, getActionColor } from '@/components/shared/action-icon';
+export { DetailModalShell } from '@/components/shared/detail-modal-shell';
+export { EditModalShell } from '@/components/shared/edit-modal-shell';
+export { Metadata } from '@/components/shared/metadata';
+export { PrioritySelect } from '@/components/shared/priority-select';
+export { SectionHeader } from '@/components/shared/section-header';
+export { StatusIcon } from '@/components/shared/status-icon';
+export { StatusSelect } from '@/components/shared/status-select';

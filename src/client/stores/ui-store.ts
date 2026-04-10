@@ -1,5 +1,6 @@
-import { create } from "zustand";
-import type { CreateModalDefaults, ConnectionStatus } from "@/types";
+import { create } from 'zustand';
+
+import type { ConnectionStatus, CreateModalDefaults } from '@/types';
 
 interface UIState {
   // Modal state
@@ -30,7 +31,7 @@ export const useUIStore = create<UIStore>((set) => ({
   selectedEpicId: null,
   showCreateModal: false,
   createModalDefaults: {},
-  connectionStatus: "disconnected",
+  connectionStatus: 'disconnected',
 
   // Actions
   openTaskDetail: (id) =>

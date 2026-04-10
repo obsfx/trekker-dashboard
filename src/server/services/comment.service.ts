@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
-import { getDb, comments, tasks } from "../lib/db";
-import { generateId } from "../lib/id-generator";
-import { NotFoundError } from "../errors";
-import type { Comment } from "../lib/db";
+import { NotFoundError } from '@server/errors';
+import type { Comment } from '@server/lib/db';
+import { comments, getDb, tasks } from '@server/lib/db';
+import { generateId } from '@server/lib/id-generator';
+import { eq } from 'drizzle-orm';
 
-export interface CreateCommentInput {
+interface CreateCommentInput {
   author: string;
   content: string;
 }
@@ -13,25 +13,21 @@ async function assertTaskExists(taskId: string): Promise<void> {
   const db = getDb();
   const result = await db.select().from(tasks).where(eq(tasks.id, taskId));
   if (!result[0]) {
-    throw new NotFoundError("Task", taskId);
+    throw new NotFoundError('Task', taskId);
   }
 }
 
 export async function getByTaskId(taskId: string): Promise<Comment[]> {
   const db = getDb();
-  return db
-    .select()
-    .from(comments)
-    .where(eq(comments.taskId, taskId))
-    .orderBy(comments.createdAt);
+  return db.select().from(comments).where(eq(comments.taskId, taskId)).orderBy(comments.createdAt);
 }
 
-export async function getById(id: string): Promise<Comment> {
+async function getById(id: string): Promise<Comment> {
   const db = getDb();
   const result = await db.select().from(comments).where(eq(comments.id, id));
 
   if (!result[0]) {
-    throw new NotFoundError("Comment", id);
+    throw new NotFoundError('Comment', id);
   }
 
   return result[0];
@@ -43,7 +39,7 @@ export async function create(taskId: string, input: CreateCommentInput): Promise
   // Verify task exists
   await assertTaskExists(taskId);
 
-  const id = generateId("comment");
+  const id = await generateId('comment');
   const now = new Date();
 
   const comment = {

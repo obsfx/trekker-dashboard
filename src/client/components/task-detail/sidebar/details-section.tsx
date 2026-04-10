@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import { ChevronRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { SectionHeader, StatusSelect, PrioritySelect } from "@/components/shared";
-import { TASK_STATUSES } from "@/lib/constants";
-import type { Task, Epic } from "@/types";
+import { PrioritySelect, SectionHeader, StatusSelect } from '@/components/shared';
+import { DetailRow } from '@/components/task-detail/sidebar/detail-row';
+import { EpicLinkRow } from '@/components/task-detail/sidebar/epic-link-row';
+import { TaskTagsRow } from '@/components/task-detail/sidebar/task-tags-row';
+import { TASK_STATUSES } from '@/lib/constants';
+import type { Epic, Task } from '@/types';
 
 interface DetailsSectionProps {
   task: Task;
@@ -21,68 +22,41 @@ export function DetailsSection({
   onEpicClick,
   getEpicById,
 }: DetailsSectionProps) {
-  const epic = task.epicId ? getEpicById(task.epicId) : null;
-  const tags = task.tags ? task.tags.split(",").map((t) => t.trim()) : [];
+  let epic: Epic | null = null;
+  if (task.epicId) {
+    epic = getEpicById(task.epicId) ?? null;
+  }
 
-  const handleEpicClick = () => {
-    if (epic && onEpicClick) {
-      onEpicClick(epic);
-    }
-  };
+  const tags =
+    task.tags
+      ?.split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean) ?? [];
 
   return (
     <div>
       <SectionHeader>Details</SectionHeader>
 
       <div className="space-y-2">
-        {/* Status */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Status</span>
+        <DetailRow label="Status">
           <StatusSelect
             value={task.status}
             onChange={onStatusChange}
             statuses={TASK_STATUSES}
             triggerClassName="w-auto h-8 text-right"
           />
-        </div>
+        </DetailRow>
 
-        {/* Priority */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Priority</span>
+        <DetailRow label="Priority">
           <PrioritySelect
             value={task.priority}
             onChange={onPriorityChange}
             triggerClassName="w-auto h-8 text-right"
           />
-        </div>
+        </DetailRow>
 
-        {/* Epic */}
-        {epic && (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Epic</span>
-            <button
-              className="flex items-center gap-0.5 text-sm text-purple-500 hover:text-purple-600"
-              onClick={handleEpicClick}
-            >
-              {epic.id}
-              <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
-        )}
-
-        {/* Tags */}
-        {tags.length > 0 && (
-          <div>
-            <span className="text-sm text-muted-foreground mb-1 block">Tags</span>
-            <div className="flex flex-wrap gap-1">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
+        {epic && <EpicLinkRow epic={epic} onEpicClick={onEpicClick} />}
+        <TaskTagsRow tags={tags} />
       </div>
     </div>
   );

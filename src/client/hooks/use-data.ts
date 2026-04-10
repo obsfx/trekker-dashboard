@@ -1,46 +1,70 @@
-"use client";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Task, Epic, Project, CreateTaskInput, UpdateTaskInput } from "@/types";
+import type { ProjectConfig } from '@/lib/types';
+import type { Epic, Project, Task } from '@/types';
 
 // Fetch functions
 async function fetchTasks(): Promise<Task[]> {
-  const res = await fetch("/api/tasks");
-  if (!res.ok) throw new Error("Failed to fetch tasks");
+  const res = await fetch('/api/tasks');
+  if (!res.ok) throw new Error('Failed to fetch tasks');
   return res.json();
 }
 
 async function fetchEpics(): Promise<Epic[]> {
-  const res = await fetch("/api/epics");
-  if (!res.ok) throw new Error("Failed to fetch epics");
+  const res = await fetch('/api/epics');
+  if (!res.ok) throw new Error('Failed to fetch epics');
   return res.json();
 }
 
 async function fetchProject(): Promise<Project | null> {
-  const res = await fetch("/api/project");
+  const res = await fetch('/api/project');
   if (!res.ok) return null;
   return res.json();
 }
 
 // Query hooks
-export function useTasks() {
+function useTasks() {
   return useQuery({
-    queryKey: ["tasks"],
+    queryKey: ['tasks'],
     queryFn: fetchTasks,
   });
 }
 
-export function useEpics() {
+function useEpics() {
   return useQuery({
-    queryKey: ["epics"],
+    queryKey: ['epics'],
     queryFn: fetchEpics,
   });
 }
 
-export function useProject() {
+function useProject() {
   return useQuery({
-    queryKey: ["project"],
+    queryKey: ['project'],
     queryFn: fetchProject,
+  });
+}
+
+export function useUpdateProjectConfig() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Partial<ProjectConfig>) => {
+      const res = await fetch('/api/project/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to update project config');
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project'] });
+    },
   });
 }
 
@@ -64,150 +88,23 @@ export function useAppData() {
   };
 }
 
-// Mutation hooks
-export function useCreateTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: CreateTaskInput) => {
-      const res = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create task");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-}
-
-export function useUpdateTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateTaskInput }) => {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update task");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-}
-
-export function useDeleteTask() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete task");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-  });
-}
-
 export function useBulkArchiveCompleted() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/bulk-archive-completed", {
-        method: "POST",
+      const res = await fetch('/api/bulk-archive-completed', {
+        method: 'POST',
       });
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || "Failed to archive completed items");
+        throw new Error(error.error || 'Failed to archive completed items');
       }
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
-    },
-  });
-}
-
-export function useCreateEpic() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: Omit<Epic, "id" | "createdAt" | "updatedAt" | "projectId">) => {
-      const res = await fetch("/api/epics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to create epic");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
-    },
-  });
-}
-
-export function useUpdateEpic() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Epic> }) => {
-      const res = await fetch(`/api/epics/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to update epic");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
-    },
-  });
-}
-
-export function useDeleteEpic() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`/api/epics/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to delete epic");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["epics"] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['epics'] });
     },
   });
 }

@@ -1,10 +1,12 @@
-"use client";
+'use client';
 
-import type { Epic } from "@/types";
-import { PriorityBadge } from "@/components/priority-badge";
-import { Progress } from "@/components/ui/progress";
-import { formatRelativeTime } from "@/lib/date";
-import { Layers } from "lucide-react";
+import { Layers } from 'lucide-react';
+
+import { PriorityBadge } from '@/components/priority-badge';
+import { Progress } from '@/components/ui/progress';
+import { FULL_PERCENTAGE } from '@/lib/constants';
+import { formatRelativeTime } from '@/lib/date';
+import type { Epic } from '@/types';
 
 interface EpicCardProps {
   epic: Epic;
@@ -13,10 +15,10 @@ interface EpicCardProps {
 }
 
 export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
-  const percentage =
-    taskCount.total > 0
-      ? Math.round((taskCount.completed / taskCount.total) * 100)
-      : 0;
+  let percentage = 0;
+  if (taskCount.total > 0) {
+    percentage = Math.round((taskCount.completed / taskCount.total) * FULL_PERCENTAGE);
+  }
 
   return (
     <div
@@ -26,9 +28,7 @@ export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-1.5">
           <Layers width={16} />
-          <span className="font-mono text-xs font-medium text-foreground">
-            {epic.id}
-          </span>
+          <span className="font-mono text-xs font-medium text-foreground">{epic.id}</span>
         </div>
         <PriorityBadge priority={epic.priority} />
       </div>
@@ -40,16 +40,10 @@ export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
           <p className="text-xs text-muted-foreground">
             {taskCount.completed}/{taskCount.total} tasks
           </p>
-          <span className="text-[10px] text-muted-foreground font-mono">
-            {percentage}%
-          </span>
+          <span className="text-[10px] text-muted-foreground font-mono">{percentage}%</span>
         </div>
-        {taskCount.total > 0 && (
-          <Progress value={percentage} className="h-1.5" />
-        )}
-        <p className="text-[10px] text-muted-foreground">
-          {formatRelativeTime(epic.createdAt)}
-        </p>
+        {taskCount.total > 0 && <Progress value={percentage} className="h-1.5" />}
+        <p className="text-[10px] text-muted-foreground">{formatRelativeTime(epic.createdAt)}</p>
       </div>
     </div>
   );

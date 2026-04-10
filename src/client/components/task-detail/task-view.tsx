@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { DetailModalShell } from "@/components/shared";
-import { TaskSidebar } from "./task-sidebar";
-import type { Task, Epic } from "@/types";
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import { DetailModalShell } from '@/components/shared';
+import { TaskSidebar } from '@/components/task-detail/task-sidebar';
+import type { Epic, Task } from '@/types';
 
 interface TaskViewProps {
   task: Task;

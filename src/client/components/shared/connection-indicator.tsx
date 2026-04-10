@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import type { ConnectionStatus } from "@/types";
+import { cn } from '@/lib/utils';
+import type { ConnectionStatus } from '@/types';
 
 const STATUS_CONFIG = {
   connected: {
-    color: "bg-green-500",
-    label: "Connected to live updates",
+    color: 'bg-green-500',
+    label: 'Connected to live updates',
   },
   connecting: {
-    color: "bg-yellow-500",
-    label: "Connecting...",
+    color: 'bg-yellow-500',
+    label: 'Connecting...',
   },
   disconnected: {
-    color: "bg-red-500",
-    label: "Disconnected",
+    color: 'bg-red-500',
+    label: 'Disconnected',
   },
 } as const;
 
@@ -27,7 +27,7 @@ export function ConnectionIndicator({ status }: ConnectionIndicatorProps) {
 
   return (
     <div className="flex items-center gap-1.5">
-      <div className={cn("h-2 w-2 rounded-full", config.color)} />
+      <div className={cn('h-2 w-2 rounded-full', config.color)} />
       <span className="text-xs text-muted-foreground">{config.label}</span>
     </div>
   );

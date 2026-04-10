@@ -3,19 +3,19 @@
  * https://developer.mozilla.org/en-US/docs/Web/API/Notification
  */
 
-export type NotificationPermissionStatus = "granted" | "denied" | "default";
+export type NotificationPermissionStatus = 'granted' | 'denied' | 'default';
 
 export function isNotificationSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window;
+  return typeof window !== 'undefined' && 'Notification' in window;
 }
 
 export function getNotificationPermission(): NotificationPermissionStatus {
-  if (!isNotificationSupported()) return "denied";
+  if (!isNotificationSupported()) return 'denied';
   return Notification.permission;
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermissionStatus> {
-  if (!isNotificationSupported()) return "denied";
+  if (!isNotificationSupported()) return 'denied';
   return Notification.requestPermission();
 }
 
@@ -29,7 +29,7 @@ interface SendNotificationOptions {
 
 export function sendNotification(options: SendNotificationOptions): Notification | null {
   if (!isNotificationSupported()) return null;
-  if (Notification.permission !== "granted") return null;
+  if (Notification.permission !== 'granted') return null;
 
   const notification = new Notification(options.title, {
     body: options.body,

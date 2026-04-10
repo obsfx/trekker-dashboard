@@ -1,15 +1,16 @@
-import { eq, or } from "drizzle-orm";
-import { getDb, tasks, dependencies, epics, projects, comments } from "../lib/db";
-import { generateId } from "../lib/id-generator";
-import { NotFoundError, ValidationError } from "../errors";
-import type { Task, Dependency } from "../lib/db";
+import { NotFoundError, ValidationError } from '@server/errors';
+import { DEFAULT_PRIORITY } from '@server/lib/constants';
+import type { Dependency, Task } from '@server/lib/db';
+import { comments, dependencies, epics, getDb, projects, tasks } from '@server/lib/db';
+import { generateId } from '@server/lib/id-generator';
+import { eq, or } from 'drizzle-orm';
 
-export interface TaskWithDeps extends Task {
+interface TaskWithDeps extends Task {
   dependsOn: string[];
   blocks: string[];
 }
 
-export interface CreateTaskInput {
+interface CreateTaskInput {
   title: string;
   description?: string | null;
   status?: string;
@@ -19,7 +20,7 @@ export interface CreateTaskInput {
   tags?: string | null;
 }
 
-export interface UpdateTaskInput {
+interface UpdateTaskInput {
   title?: string;
   description?: string | null;
   status?: string;
@@ -45,7 +46,7 @@ async function assertEpicExists(epicId: string): Promise<void> {
   const db = getDb();
   const result = await db.select().from(epics).where(eq(epics.id, epicId));
   if (!result[0]) {
-    throw new NotFoundError("Epic", epicId);
+    throw new NotFoundError('Epic', epicId);
   }
 }
 
@@ -53,7 +54,7 @@ async function assertTaskExists(taskId: string): Promise<void> {
   const db = getDb();
   const result = await db.select().from(tasks).where(eq(tasks.id, taskId));
   if (!result[0]) {
-    throw new NotFoundError("Task", taskId);
+    throw new NotFoundError('Task', taskId);
   }
 }
 
@@ -61,7 +62,7 @@ async function getProject() {
   const db = getDb();
   const result = await db.select().from(projects);
   if (!result[0]) {
-    throw new ValidationError("Project not initialized");
+    throw new ValidationError('Project not initialized');
   }
   return result[0];
 }
@@ -83,7 +84,7 @@ export async function getById(id: string): Promise<TaskWithDeps> {
   ]);
 
   if (!taskResult[0]) {
-    throw new NotFoundError("Task", id);
+    throw new NotFoundError('Task', id);
   }
 
   return enrichWithDeps(taskResult[0], allDeps);
@@ -101,7 +102,7 @@ export async function create(input: CreateTaskInput): Promise<TaskWithDeps> {
   }
 
   const project = await getProject();
-  const id = generateId("task");
+  const id = await generateId('task');
   const now = new Date();
 
   const task = {
@@ -111,8 +112,8 @@ export async function create(input: CreateTaskInput): Promise<TaskWithDeps> {
     parentTaskId: input.parentTaskId || null,
     title: input.title,
     description: input.description || null,
-    status: input.status || "todo",
-    priority: input.priority ?? 2,
+    status: input.status || 'todo',
+    priority: input.priority ?? DEFAULT_PRIORITY,
     tags: input.tags || null,
     createdAt: now,
     updatedAt: now,
@@ -168,13 +169,4 @@ export async function remove(id: string): Promise<void> {
 
   // Delete the task
   await db.delete(tasks).where(eq(tasks.id, id));
-}
-
-export async function getByTaskId(taskId: string): Promise<TaskWithDeps[]> {
-  const db = getDb();
-  const [taskResults, allDeps] = await Promise.all([
-    db.select().from(tasks).where(eq(tasks.parentTaskId, taskId)),
-    getAllDeps(),
-  ]);
-  return taskResults.map((task) => enrichWithDeps(task, allDeps));
 }

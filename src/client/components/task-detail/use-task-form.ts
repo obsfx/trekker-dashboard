@@ -1,12 +1,19 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { taskFormSchema, TaskFormData } from "./schema";
-import type { Task } from "@/types";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import {
+  deleteTaskRequest,
+  getTaskFormValues,
+  updateTaskRequest,
+} from '@/components/task-detail/form-helpers';
+import { type TaskFormData, taskFormSchema } from '@/components/task-detail/schema';
+import { getErrorMessage } from '@/lib/errors';
+import type { Task } from '@/types';
 
 interface UseTaskFormOptions {
   task: Task | null;
@@ -22,27 +29,16 @@ export function useTaskForm({ task, open, isEditing, onClose, onUpdate }: UseTas
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),
-    values: task ? {
-      title: task.title,
-      description: task.description || "",
-      status: task.status,
-      priority: task.priority,
-      tags: task.tags || "",
-      epicId: task.epicId,
-    } : {
-      title: "",
-      description: "",
-      status: "todo",
-      priority: 2,
-      tags: "",
-      epicId: null,
-    },
+    values: getTaskFormValues(task),
     resetOptions: {
       keepDirtyValues: false,
     },
   });
 
-  const { reset, formState: { isSubmitting } } = form;
+  const {
+    reset,
+    formState: { isSubmitting },
+  } = form;
 
   // Reset deleting state when modal opens/closes
   useEffect(() => {
@@ -53,30 +49,21 @@ export function useTaskForm({ task, open, isEditing, onClose, onUpdate }: UseTas
     if (!task) return;
 
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: data.title.trim(),
-          description: data.description.trim() || null,
-          status: data.status,
-          priority: data.priority,
-          tags: data.tags.trim() || null,
-          epicId: data.epicId || null,
-        }),
+      await updateTaskRequest(task.id, {
+        title: data.title.trim(),
+        description: data.description.trim() || null,
+        status: data.status,
+        priority: data.priority,
+        tags: data.tags.trim() || null,
+        epicId: data.epicId || null,
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update task");
-      }
-
-      toast.success("Task updated");
+      toast.success('Task updated');
       onUpdate();
-      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
       return true;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update task");
+      toast.error(getErrorMessage(error, 'Failed to update task'));
       return false;
     }
   };
@@ -85,86 +72,54 @@ export function useTaskForm({ task, open, isEditing, onClose, onUpdate }: UseTas
     if (!task) return;
 
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "DELETE",
-      });
+      await deleteTaskRequest(task.id);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to delete task");
-      }
-
-      toast.success("Task deleted");
+      toast.success('Task deleted');
       onClose();
       onUpdate();
-      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to delete task");
+      toast.error(getErrorMessage(error, 'Failed to delete task'));
     }
   };
 
   const handleStatusChange = async (newStatus: string) => {
     if (!task) return;
 
-    const previousStatus = form.getValues("status");
-    form.setValue("status", newStatus);
+    const previousStatus = form.getValues('status');
+    form.setValue('status', newStatus);
 
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        form.setValue("status", previousStatus);
-        throw new Error(error.error || "Failed to update status");
-      }
+      await updateTaskRequest(task.id, { status: newStatus });
 
       onUpdate();
-      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update status");
+      form.setValue('status', previousStatus);
+      toast.error(getErrorMessage(error, 'Failed to update status'));
     }
   };
 
   const handlePriorityChange = async (newPriority: number) => {
     if (!task) return;
 
-    const previousPriority = form.getValues("priority");
-    form.setValue("priority", newPriority);
+    const previousPriority = form.getValues('priority');
+    form.setValue('priority', newPriority);
 
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priority: newPriority }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        form.setValue("priority", previousPriority);
-        throw new Error(error.error || "Failed to update priority");
-      }
+      await updateTaskRequest(task.id, { priority: newPriority });
 
       onUpdate();
-      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update priority");
+      form.setValue('priority', previousPriority);
+      toast.error(getErrorMessage(error, 'Failed to update priority'));
     }
   };
 
   const handleCancel = () => {
     if (task) {
-      reset({
-        title: task.title,
-        description: task.description || "",
-        status: task.status,
-        priority: task.priority,
-        tags: task.tags || "",
-        epicId: task.epicId,
-      });
+      reset(getTaskFormValues(task));
     }
     setIsDeleting(false);
   };

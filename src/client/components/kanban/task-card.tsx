@@ -1,16 +1,12 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import type { Task } from "@/types";
-import { PriorityBadge } from "@/components/priority-badge";
-import { SubtaskProgress } from "@/components/subtask-progress";
-import { formatRelativeTime } from "@/lib/date";
-import {
-  Layers,
-  SquareCheck,
-  ArrowLeftToLine,
-  ArrowRightFromLine,
-} from "lucide-react";
+import { ArrowLeftToLine, ArrowRightFromLine, Layers, SquareCheck } from 'lucide-react';
+
+import { PriorityBadge } from '@/components/priority-badge';
+import { SubtaskProgress } from '@/components/subtask-progress';
+import { Badge } from '@/components/ui/badge';
+import { formatRelativeTime } from '@/lib/date';
+import type { Task } from '@/types';
 
 interface TaskCardProps {
   task: Task;
@@ -20,9 +16,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
-  const completedSubtasks = subtasks.filter(
-    (s) => s.status === "completed",
-  ).length;
+  const completedSubtasks = subtasks.filter((s) => s.status === 'completed').length;
 
   return (
     <div
@@ -33,9 +27,7 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-1.5">
           <SquareCheck width={16} />
-          <span className="font-mono text-xs font-medium text-foreground">
-            {task.id}
-          </span>
+          <span className="font-mono text-xs font-medium text-foreground">{task.id}</span>
         </div>
         <PriorityBadge priority={task.priority} />
       </div>
@@ -43,9 +35,7 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
       <h4 className="text-sm font-medium mb-1">{task.title}</h4>
 
       {task.description && (
-        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
-          {task.description}
-        </p>
+        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>
       )}
 
       {(epicName || task.tags) && (
@@ -56,12 +46,11 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
               {epicName}
             </p>
           )}
-          {task.tags &&
-            task.tags.split(",").map((tag) => (
-              <Badge key={tag} variant="outline" className="text-xs">
-                {tag.trim()}
-              </Badge>
-            ))}
+          {task.tags?.split(',').map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs">
+              {tag.trim()}
+            </Badge>
+          ))}
         </div>
       )}
 
@@ -91,10 +80,7 @@ export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
       )}
 
       {subtasks.length > 0 && (
-        <SubtaskProgress
-          completed={completedSubtasks}
-          total={subtasks.length}
-        />
+        <SubtaskProgress completed={completedSubtasks} total={subtasks.length} />
       )}
 
       <p className="text-[10px] text-muted-foreground mt-1.5">

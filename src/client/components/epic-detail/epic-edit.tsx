@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
-import { UseFormReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { StatusSelect, PrioritySelect, EditModalShell } from "@/components/shared";
-import { EPIC_STATUSES } from "@/lib/constants";
-import { EpicFormData } from "./schema";
+import type { UseFormReturn } from 'react-hook-form';
+
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import type { EpicFormData } from '@/components/epic-detail/schema';
+import { EditModalShell, PrioritySelect, StatusSelect } from '@/components/shared';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { EPIC_STATUSES } from '@/lib/constants';
 
 interface EpicEditProps {
   form: UseFormReturn<EpicFormData>;
@@ -40,10 +41,10 @@ export function EpicEdit({
     handleSubmit,
     formState: { isSubmitting, errors },
   } = form;
-  const title = watch("title");
-  const description = watch("description");
-  const status = watch("status");
-  const priority = watch("priority");
+  const title = watch('title');
+  const description = watch('description');
+  const status = watch('status');
+  const priority = watch('priority');
 
   const handleFormSubmit = async (data: EpicFormData) => {
     const success = await onSubmit(data);
@@ -66,23 +67,17 @@ export function EpicEdit({
       onDeleteConfirm={onDeleteConfirm}
       onDeleteCancel={onDeleteCancel}
     >
-      <form
-        id="epic-edit-form"
-        onSubmit={handleSubmit(handleFormSubmit)}
-        className="space-y-4 p-4"
-      >
+      <form id="epic-edit-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-4">
         {/* Title */}
         <div className="space-y-2">
           <Label>Title</Label>
           <Input
             value={title}
-            onChange={(e) => setValue("title", e.target.value)}
+            onChange={(e) => setValue('title', e.target.value)}
             placeholder="Epic title"
             className="text-lg font-semibold"
           />
-          {errors.title && (
-            <p className="text-xs text-destructive">{errors.title.message}</p>
-          )}
+          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
 
         {/* Description */}
@@ -90,7 +85,7 @@ export function EpicEdit({
           <Label>Description</Label>
           <Textarea
             value={description}
-            onChange={(e) => setValue("description", e.target.value)}
+            onChange={(e) => setValue('description', e.target.value)}
             placeholder="Epic description"
             rows={4}
           />
@@ -102,16 +97,13 @@ export function EpicEdit({
             <Label>Status</Label>
             <StatusSelect
               value={status}
-              onChange={(v) => setValue("status", v)}
+              onChange={(v) => setValue('status', v)}
               statuses={EPIC_STATUSES}
             />
           </div>
           <div className="space-y-2">
             <Label>Priority</Label>
-            <PrioritySelect
-              value={priority}
-              onChange={(v) => setValue("priority", v)}
-            />
+            <PrioritySelect value={priority} onChange={(v) => setValue('priority', v)} />
           </div>
         </div>
       </form>

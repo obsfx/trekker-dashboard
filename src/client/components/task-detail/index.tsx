@@ -1,11 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { TaskView } from "./task-view";
-import { TaskEdit } from "./task-edit";
-import { useTaskForm } from "./use-task-form";
-import type { Task, Epic } from "@/types";
+import { useState } from 'react';
+
+import {
+  buildTaskBreadcrumbItems,
+  findEpicById,
+  findTaskById,
+  getSubtasksForTask,
+} from '@/components/task-detail/selectors';
+import { TaskEdit } from '@/components/task-detail/task-edit';
+import { TaskView } from '@/components/task-detail/task-view';
+import { useTaskForm } from '@/components/task-detail/use-task-form';
+import type { Epic, Task } from '@/types';
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -41,22 +47,9 @@ export function TaskDetailModal({
     handlePriorityChange,
   } = useTaskForm({ task, open, isEditing, onClose, onUpdate });
 
-  const getEpicById = useCallback(
-    (id: string) => epics.find((e) => e.id === id),
-    [epics]
-  );
+  const getEpicById = (id: string) => findEpicById(epics, id);
+  const getTaskById = (id: string) => findTaskById(allTasks, id);
 
-  const getTaskById = useCallback(
-    (id: string) => allTasks.find((t) => t.id === id),
-    [allTasks]
-  );
-
-  const getParentTask = useCallback(
-    (id: string | null) => (id ? allTasks.find((t) => t.id === id) : null),
-    [allTasks]
-  );
-
-  // Reset editing state when modal closes or task changes
   const handleClose = () => {
     setIsEditing(false);
     onClose();
@@ -64,44 +57,14 @@ export function TaskDetailModal({
 
   if (!task) return null;
 
-  const isSubtask = !!task.parentTaskId;
-  const subtasks = allTasks.filter((t) => t.parentTaskId === task.id);
-
-  const buildBreadcrumb = (): BreadcrumbItem[] => {
-    const items: BreadcrumbItem[] = [];
-    const epic = task.epicId ? getEpicById(task.epicId) : null;
-    const parentTask = getParentTask(task.parentTaskId);
-
-    if (epic) {
-      items.push({
-        id: epic.id,
-        title: epic.title,
-        type: "epic",
-        onClick: onEpicClick ? () => onEpicClick(epic) : undefined,
-      });
-    }
-
-    if (parentTask) {
-      items.push({
-        id: parentTask.id,
-        title: parentTask.title,
-        type: "task",
-        onClick: onTaskClick ? () => onTaskClick(parentTask) : undefined,
-      });
-    }
-
-    items.push({
-      id: task.id,
-      title: task.title,
-      type: isSubtask ? "subtask" : "task",
-    });
-
-    return items;
-  };
-
-  const breadcrumbItems = buildBreadcrumb();
-  const status = form.watch("status");
-  const priority = form.watch("priority");
+  const subtasks = getSubtasksForTask(allTasks, task.id);
+  const breadcrumbItems = buildTaskBreadcrumbItems(epics, allTasks, {
+    onEpicClick,
+    onTaskClick,
+    task,
+  });
+  const status = form.watch('status');
+  const priority = form.watch('priority');
 
   const handleEditCancel = () => {
     handleCancel();

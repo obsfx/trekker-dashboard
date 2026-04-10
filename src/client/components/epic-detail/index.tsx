@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { EpicView } from "./epic-view";
-import { EpicEdit } from "./epic-edit";
-import { useEpicForm } from "./use-epic-form";
-import type { Task, Epic } from "@/types";
+import { useState } from 'react';
+
+import { EpicEdit } from '@/components/epic-detail/epic-edit';
+import { EpicView } from '@/components/epic-detail/epic-view';
+import { buildEpicBreadcrumbItems } from '@/components/epic-detail/selectors';
+import { useEpicForm } from '@/components/epic-detail/use-epic-form';
+import type { Epic, Task } from '@/types';
 
 interface EpicDetailModalProps {
   epic: Epic | null;
@@ -37,7 +38,6 @@ export function EpicDetailModal({
     handlePriorityChange,
   } = useEpicForm({ epic, open, isEditing, onClose, onUpdate });
 
-  // Reset editing state when modal closes
   const handleClose = () => {
     setIsEditing(false);
     onClose();
@@ -45,12 +45,10 @@ export function EpicDetailModal({
 
   if (!epic) return null;
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { id: epic.id, title: epic.title, type: "epic" },
-  ];
+  const breadcrumbItems = buildEpicBreadcrumbItems(epic);
 
-  const status = form.watch("status");
-  const priority = form.watch("priority");
+  const status = form.watch('status');
+  const priority = form.watch('priority');
 
   const handleEditCancel = () => {
     handleCancel();

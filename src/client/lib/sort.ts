@@ -1,27 +1,27 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export type SortOption =
-  | "created:desc"
-  | "created:asc"
-  | "updated:desc"
-  | "priority:asc"
-  | "priority:desc"
-  | "title:asc"
-  | "title:desc";
+  | 'created:desc'
+  | 'created:asc'
+  | 'updated:desc'
+  | 'priority:asc'
+  | 'priority:desc'
+  | 'title:asc'
+  | 'title:desc';
 
-export interface SortOptionItem {
+interface SortOptionItem {
   value: SortOption;
   label: string;
 }
 
 export const SORT_OPTIONS: SortOptionItem[] = [
-  { value: "created:desc", label: "Newest first" },
-  { value: "created:asc", label: "Oldest first" },
-  { value: "updated:desc", label: "Recently updated" },
-  { value: "priority:asc", label: "Priority (high to low)" },
-  { value: "priority:desc", label: "Priority (low to high)" },
-  { value: "title:asc", label: "Title (A-Z)" },
-  { value: "title:desc", label: "Title (Z-A)" },
+  { value: 'created:desc', label: 'Newest first' },
+  { value: 'created:asc', label: 'Oldest first' },
+  { value: 'updated:desc', label: 'Recently updated' },
+  { value: 'priority:asc', label: 'Priority (high to low)' },
+  { value: 'priority:desc', label: 'Priority (low to high)' },
+  { value: 'title:asc', label: 'Title (A-Z)' },
+  { value: 'title:desc', label: 'Title (Z-A)' },
 ];
 
 interface Sortable {
@@ -31,25 +31,21 @@ interface Sortable {
   title: string;
 }
 
-export function compareBySortOption<T extends Sortable>(
-  a: T,
-  b: T,
-  sort: SortOption,
-): number {
+export function compareBySortOption<T extends Sortable>(a: T, b: T, sort: SortOption): number {
   switch (sort) {
-    case "created:desc":
+    case 'created:desc':
       return dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf();
-    case "created:asc":
+    case 'created:asc':
       return dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf();
-    case "updated:desc":
+    case 'updated:desc':
       return dayjs(b.updatedAt).valueOf() - dayjs(a.updatedAt).valueOf();
-    case "priority:asc":
+    case 'priority:asc':
       return a.priority - b.priority;
-    case "priority:desc":
+    case 'priority:desc':
       return b.priority - a.priority;
-    case "title:asc":
+    case 'title:asc':
       return a.title.localeCompare(b.title);
-    case "title:desc":
+    case 'title:desc':
       return b.title.localeCompare(a.title);
     default:
       return 0;

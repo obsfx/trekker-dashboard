@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { BreadcrumbItem } from "@/components/breadcrumb";
-import { DetailModalShell } from "@/components/shared";
-import { EpicSidebar } from "./epic-sidebar";
-import type { Task, Epic } from "@/types";
+import type { BreadcrumbItem } from '@/components/breadcrumb';
+import { EpicSidebar } from '@/components/epic-detail/epic-sidebar';
+import { DetailModalShell } from '@/components/shared';
+import type { Epic, Task } from '@/types';
 
 interface EpicViewProps {
   epic: Epic;

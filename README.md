@@ -63,6 +63,7 @@ See [bun.sh/docs/installation](https://bun.sh/docs/installation) for more option
 - Epic filtering to focus on specific features
 - Task details including dependencies, subtasks, and tags
 - Create, edit, and delete tasks directly from the UI
+- Edit issue, epic, and comment prefixes from the UI
 - Real-time updates via Server-Sent Events
 - Dark mode support
 
