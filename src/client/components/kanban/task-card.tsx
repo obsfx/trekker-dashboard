@@ -6,6 +6,7 @@ import { PriorityBadge } from '@/components/priority-badge';
 import { SubtaskProgress } from '@/components/subtask-progress';
 import { Badge } from '@/components/ui/badge';
 import { formatRelativeTime } from '@/lib/date';
+import { countCompleted } from '@/lib/status';
 import type { Task } from '@/types';
 
 interface TaskCardProps {
@@ -16,7 +17,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, epicName, subtasks, onClick }: TaskCardProps) {
-  const completedSubtasks = subtasks.filter((s) => s.status === 'completed').length;
+  const completedSubtasks = countCompleted(subtasks);
 
   return (
     <div
