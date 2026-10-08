@@ -12,30 +12,7 @@ interface HistoryEventItemProps {
   onEntityClick: (type: HistoryEntityType, id: string) => void;
 }
 
-function getHistoryEventTitle(event: HistoryEvent): string | null {
-  const snapshotTitle = event.snapshot?.title;
-  if (typeof snapshotTitle === 'string' && snapshotTitle.length > 0) {
-    return snapshotTitle;
-  }
-
-  const titleChange = event.changes?.title;
-  if (!titleChange) {
-    return null;
-  }
-
-  if (typeof titleChange.to === 'string' && titleChange.to.length > 0) {
-    return titleChange.to;
-  }
-
-  if (typeof titleChange.from === 'string' && titleChange.from.length > 0) {
-    return titleChange.from;
-  }
-
-  return null;
-}
-
 export function HistoryEventItem({ event, onEntityClick }: HistoryEventItemProps) {
-  const title = getHistoryEventTitle(event);
   const canClick =
     event.action !== 'delete' && ['epic', 'task', 'subtask'].includes(event.entityType);
 
@@ -65,14 +42,14 @@ export function HistoryEventItem({ event, onEntityClick }: HistoryEventItemProps
           </Badge>
         </div>
 
-        {title && (
+        {event.title && (
           <p
             className={cn(
               'text-sm mb-2',
               event.action === 'delete' && 'line-through text-muted-foreground'
             )}
           >
-            {title}
+            {event.title}
           </p>
         )}
 

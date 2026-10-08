@@ -20,9 +20,17 @@ export function formatRelativeTime(date: string | Date): string {
   const diffHours = now.diff(then, 'hour');
   const diffDays = now.diff(then, 'day');
 
-  if (diffMins < 1) return 'just now';
-  if (diffMins < MINUTES_PER_HOUR) return `${diffMins}m ago`;
-  if (diffHours < HOURS_PER_DAY) return `${diffHours}h ago`;
-  if (diffDays < DAYS_PER_WEEK) return `${diffDays}d ago`;
+  if (diffMins < 1) {
+    return 'just now';
+  }
+  if (diffMins < MINUTES_PER_HOUR) {
+    return `${diffMins}m ago`;
+  }
+  if (diffHours < HOURS_PER_DAY) {
+    return `${diffHours}h ago`;
+  }
+  if (diffDays < DAYS_PER_WEEK) {
+    return `${diffDays}d ago`;
+  }
   return then.format('MMM D, YYYY');
 }

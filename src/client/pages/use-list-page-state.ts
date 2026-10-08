@@ -1,13 +1,11 @@
 import { useState } from 'react';
 
-import { useAppData } from '@/hooks/use-data';
 import { type ListEntityType, type ListFilters, type ListItem, useList } from '@/hooks/use-list';
-import { useTaskDetailActions } from '@/hooks/use-task-detail-actions';
 import { DEFAULT_LIST_PAGE_SIZE } from '@/lib/constants';
+import { useUIStore } from '@/stores';
 
 export function useListPageState() {
-  const { epics, refetch, tasks } = useAppData();
-  const detailActions = useTaskDetailActions(tasks, epics);
+  const { openEpicDetail, openTaskDetail } = useUIStore();
   const [filters, setFilters] = useState<ListFilters>({
     limit: DEFAULT_LIST_PAGE_SIZE,
     page: 1,
@@ -18,11 +16,11 @@ export function useListPageState() {
 
   function handleRowClick(item: ListItem) {
     if (item.type === 'epic') {
-      detailActions.openEpicDetail(item.id);
+      openEpicDetail(item.id);
       return;
     }
 
-    detailActions.openTaskDetail(item.id);
+    openTaskDetail(item.id);
   }
 
   function toggleTypeFilter(type: ListEntityType) {
@@ -76,21 +74,17 @@ export function useListPageState() {
   }
 
   return {
-    ...detailActions,
     clearFilters,
     data,
-    epics,
     error,
     filteredItems,
     filters,
     handleRowClick,
     hasActiveFilters,
     isLoading,
-    refetch,
     searchQuery,
     setFilters,
     setSearchQuery,
-    tasks,
     toggleTypeFilter,
     totalPages,
   };

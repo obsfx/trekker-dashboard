@@ -25,7 +25,7 @@ export function StatusSelect({ value, onChange, statuses, triggerClassName }: St
       <SelectContent>
         {statuses.map((s) => (
           <SelectItem key={s} value={s}>
-            {STATUS_LABELS[s]}
+            {STATUS_LABELS.get(s)}
           </SelectItem>
         ))}
       </SelectContent>

@@ -1,10 +1,10 @@
 'use client';
 
-import type { UseFormReturn } from 'react-hook-form';
-
-import type { BreadcrumbItem } from '@/components/breadcrumb';
-import { EditModalShell, PrioritySelect, StatusSelect } from '@/components/shared';
-import type { TaskFormData } from '@/components/task-detail/schema';
+import { EditModalShell, WorkItemCoreFields } from '@/components/shared';
+import {
+  closeAfterSuccessfulSubmit,
+  type WorkItemEditProps,
+} from '@/components/shared/work-item-edit-props';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -14,22 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { TASK_STATUSES } from '@/lib/constants';
+import type { TaskFormData } from '@/lib/work-item-schema';
 import type { Epic } from '@/types';
 
-interface TaskEditProps {
-  form: UseFormReturn<TaskFormData>;
+interface TaskEditProps extends WorkItemEditProps<TaskFormData> {
   epics: Epic[];
-  breadcrumbItems: BreadcrumbItem[];
-  open: boolean;
-  isDeleting: boolean;
-  onClose: () => void;
-  onSubmit: (data: TaskFormData) => Promise<boolean | undefined>;
-  onCancel: () => void;
-  onDelete: () => void;
-  onDeleteConfirm: () => void;
-  onDeleteCancel: () => void;
 }
 
 export function TaskEdit({
@@ -51,19 +41,7 @@ export function TaskEdit({
     handleSubmit,
     formState: { isSubmitting, errors },
   } = form;
-  const title = watch('title');
-  const description = watch('description');
-  const status = watch('status');
-  const priority = watch('priority');
-  const tags = watch('tags');
-  const epicId = watch('epicId');
-
-  const handleFormSubmit = async (data: TaskFormData) => {
-    const success = await onSubmit(data);
-    if (success) {
-      onCancel();
-    }
-  };
+  const values = watch();
 
   const handleEpicChange = (value: string) => {
     if (value === 'none') {
@@ -88,47 +66,23 @@ export function TaskEdit({
       onDeleteConfirm={onDeleteConfirm}
       onDeleteCancel={onDeleteCancel}
     >
-      <form id="task-edit-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 p-4">
-        <div className="space-y-2">
-          <Label>Title</Label>
-          <Input
-            value={title}
-            onChange={(e) => setValue('title', e.target.value)}
-            placeholder="Task title"
-            className="text-lg font-semibold"
-          />
-          {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Description</Label>
-          <Textarea
-            value={description}
-            onChange={(e) => setValue('description', e.target.value)}
-            placeholder="Task description"
-            rows={4}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <StatusSelect
-              value={status}
-              onChange={(v) => setValue('status', v)}
-              statuses={TASK_STATUSES}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Priority</Label>
-            <PrioritySelect value={priority} onChange={(v) => setValue('priority', v)} />
-          </div>
-        </div>
+      <form
+        id="task-edit-form"
+        onSubmit={handleSubmit(closeAfterSuccessfulSubmit(onSubmit, onCancel))}
+        className="space-y-4 p-4"
+      >
+        <WorkItemCoreFields
+          entityLabel="Task"
+          statuses={TASK_STATUSES}
+          values={values}
+          titleError={errors.title?.message}
+          setValue={setValue}
+        />
 
         <div className="space-y-2">
           <Label>Tags (comma-separated)</Label>
           <Input
-            value={tags}
+            value={values.tags}
             onChange={(e) => setValue('tags', e.target.value)}
             placeholder="bug, frontend, urgent"
           />
@@ -136,7 +90,7 @@ export function TaskEdit({
 
         <div className="space-y-2">
           <Label>Epic</Label>
-          <Select value={epicId || 'none'} onValueChange={handleEpicChange}>
+          <Select value={values.epicId || 'none'} onValueChange={handleEpicChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

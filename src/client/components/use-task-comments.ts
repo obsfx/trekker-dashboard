@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, readApiErrorMessage } from '@/lib/errors';
 import type { Comment } from '@/types';
 
 const COMMENT_AUTHOR_STORAGE_KEY = 'trekker-comment-author';
@@ -76,8 +76,8 @@ export function useTaskComments(taskId: string) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error ?? 'Failed to add comment');
+        const message = await readApiErrorMessage(response, 'Failed to add comment');
+        throw new Error(message);
       }
 
       const nextComment = await response.json();

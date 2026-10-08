@@ -7,26 +7,8 @@ import { HistoryPageResults } from '@/pages/history-page-results';
 import { useHistoryPageState } from '@/pages/use-history-page-state';
 
 export function HistoryPage() {
-  const {
-    closeEpicDetail,
-    closeTaskDetail,
-    data,
-    epics,
-    error,
-    filters,
-    handleEntityClick,
-    handleEpicModalTaskClick,
-    handleTaskModalEpicClick,
-    isLoading,
-    openTaskDetail,
-    refetch,
-    selectedEpic,
-    selectedEpicTasks,
-    selectedTask,
-    setFilters,
-    tasks,
-    totalPages,
-  } = useHistoryPageState();
+  const { data, error, filters, handleEntityClick, isLoading, setFilters, totalPages } =
+    useHistoryPageState();
 
   return (
     <>
@@ -48,19 +30,7 @@ export function HistoryPage() {
         />
       </main>
 
-      <EntityDetailModals
-        allTasks={tasks}
-        epics={epics}
-        selectedEpic={selectedEpic}
-        selectedEpicTasks={selectedEpicTasks}
-        selectedTask={selectedTask}
-        onCloseEpicDetail={closeEpicDetail}
-        onCloseTaskDetail={closeTaskDetail}
-        onEpicDetailTaskClick={handleEpicModalTaskClick}
-        onTaskDetailEpicClick={handleTaskModalEpicClick}
-        onTaskDetailTaskClick={(task) => openTaskDetail(task.id)}
-        onUpdate={refetch}
-      />
+      <EntityDetailModals />
     </>
   );
 }

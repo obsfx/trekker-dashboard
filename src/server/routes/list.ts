@@ -1,7 +1,13 @@
 import { DatabaseError, ValidationError } from '@server/errors';
-import { DEFAULT_LIST_QUERY_LIMIT, DEFAULT_PAGE, SQLITE_MILLISECONDS } from '@server/lib/constants';
+import { DEFAULT_LIST_QUERY_LIMIT, SQLITE_MILLISECONDS } from '@server/lib/constants';
 import { getDb, getSqliteInstance } from '@server/lib/db';
-import { parseCsvQuery, parseNumberCsvQuery, parseQueryNumber } from '@server/lib/query';
+import {
+  addInCondition,
+  parseCsvQuery,
+  parseNumberCsvQuery,
+  parsePagination,
+  type SqlParam,
+} from '@server/lib/query';
 import { Hono } from 'hono';
 
 const app = new Hono();
@@ -33,9 +39,14 @@ function getSortField(field: string): string {
   return field;
 }
 
-function parseSort(sortStr: string): { field: string; direction: 'asc' | 'desc' }[] {
+interface SortSpec {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+function parseSort(sortStr: string): SortSpec[] {
   const parts = sortStr.split(',').map((s) => s.trim());
-  const result: { field: string; direction: 'asc' | 'desc' }[] = [];
+  const result: SortSpec[] = [];
 
   for (const part of parts) {
     const [field, dir] = part.split(':').map((s) => s.trim().toLowerCase());
@@ -73,31 +84,21 @@ app.get('/', async (c) => {
   const since = c.req.query('since');
   const until = c.req.query('until');
   const sortParam = c.req.query('sort');
-  const limit = parseQueryNumber(c.req.query('limit'), DEFAULT_LIST_QUERY_LIMIT);
-  const page = parseQueryNumber(c.req.query('page'), DEFAULT_PAGE);
-  const offset = (page - 1) * limit;
+  const { limit, page, offset } = parsePagination(
+    c.req.query('limit'),
+    c.req.query('page'),
+    DEFAULT_LIST_QUERY_LIMIT
+  );
 
   // Build filter conditions
   const conditions: string[] = [];
-  const params: (string | number)[] = [];
+  const params: SqlParam[] = [];
 
-  if (types && types.length > 0) {
-    const placeholders = types.map(() => '?').join(', ');
-    conditions.push(`type IN (${placeholders})`);
-    params.push(...types);
-  }
+  addInCondition(conditions, params, 'type', types);
 
-  if (statuses && statuses.length > 0) {
-    const placeholders = statuses.map(() => '?').join(', ');
-    conditions.push(`status IN (${placeholders})`);
-    params.push(...statuses);
-  }
+  addInCondition(conditions, params, 'status', statuses);
 
-  if (priorities && priorities.length > 0) {
-    const placeholders = priorities.map(() => '?').join(', ');
-    conditions.push(`priority IN (${placeholders})`);
-    params.push(...priorities);
-  }
+  addInCondition(conditions, params, 'priority', priorities);
 
   if (since) {
     const sinceDate = new Date(since);
@@ -171,4 +172,4 @@ app.get('/', async (c) => {
   });
 });
 
-export default app;
+export { app as listRoutes };

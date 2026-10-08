@@ -2,55 +2,42 @@
 
 import { EpicDetailModal } from '@/components/epic-detail';
 import { TaskDetailModal } from '@/components/task-detail';
-import type { Epic, Task } from '@/types';
+import { useAppData } from '@/hooks/use-data';
+import { useTaskDetailActions } from '@/hooks/use-task-detail-actions';
 
-interface EntityDetailModalsProps {
-  allTasks: Task[];
-  epics: Epic[];
-  selectedEpic: Epic | null;
-  selectedEpicTasks: Task[];
-  selectedTask: Task | null;
-  onCloseEpicDetail: () => void;
-  onCloseTaskDetail: () => void;
-  onEpicDetailTaskClick: (task: Task) => void;
-  onTaskDetailEpicClick: (epic: Epic) => void;
-  onTaskDetailTaskClick: (task: Task) => void;
-  onUpdate: () => void;
-}
+export function EntityDetailModals() {
+  const { epics, refetch, tasks } = useAppData();
+  const {
+    closeEpicDetail,
+    closeTaskDetail,
+    handleEpicModalTaskClick,
+    handleTaskModalEpicClick,
+    openTaskDetail,
+    selectedEpic,
+    selectedEpicTasks,
+    selectedTask,
+  } = useTaskDetailActions(tasks, epics);
 
-export function EntityDetailModals({
-  allTasks,
-  epics,
-  selectedEpic,
-  selectedEpicTasks,
-  selectedTask,
-  onCloseEpicDetail,
-  onCloseTaskDetail,
-  onEpicDetailTaskClick,
-  onTaskDetailEpicClick,
-  onTaskDetailTaskClick,
-  onUpdate,
-}: EntityDetailModalsProps) {
   return (
     <>
       <TaskDetailModal
         task={selectedTask}
         epics={epics}
-        allTasks={allTasks}
+        allTasks={tasks}
         open={selectedTask !== null}
-        onClose={onCloseTaskDetail}
-        onUpdate={onUpdate}
-        onTaskClick={onTaskDetailTaskClick}
-        onEpicClick={onTaskDetailEpicClick}
+        onClose={closeTaskDetail}
+        onUpdate={refetch}
+        onTaskClick={(task) => openTaskDetail(task.id)}
+        onEpicClick={handleTaskModalEpicClick}
       />
 
       <EpicDetailModal
         epic={selectedEpic}
         tasks={selectedEpicTasks}
         open={selectedEpic !== null}
-        onClose={onCloseEpicDetail}
-        onUpdate={onUpdate}
-        onTaskClick={onEpicDetailTaskClick}
+        onClose={closeEpicDetail}
+        onUpdate={refetch}
+        onTaskClick={handleEpicModalTaskClick}
       />
     </>
   );

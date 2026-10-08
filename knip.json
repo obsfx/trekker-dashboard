@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/knip/schema.json",
-  "entry": ["tests/**/*.ts"],
-  "project": ["src/**/*.{ts,tsx}", "tests/**/*.ts"],
-  "ignoreUnresolved": ["bun-types"]
+  "entry": [
+    "tests/**/*.ts",
+    "src/server/dev.ts"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,css}",
+    "tests/**/*.ts"
+  ]
 }

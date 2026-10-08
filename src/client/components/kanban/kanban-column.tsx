@@ -41,19 +41,25 @@ export function KanbanColumn({
   const [filter, setFilter] = useState<ColumnFilterState>(DEFAULT_FILTER);
 
   const filteredEpics = useMemo(() => {
-    if (filter.type === 'task') return [];
+    if (filter.type === 'task') {
+      return [];
+    }
     return [...epics].sort((a, b) => compareBySortOption(a, b, filter.sort));
   }, [epics, filter]);
 
   const filteredTasks = useMemo(() => {
-    if (filter.type === 'epic') return [];
+    if (filter.type === 'epic') {
+      return [];
+    }
     return [...tasks].sort((a, b) => compareBySortOption(a, b, filter.sort));
   }, [tasks, filter]);
 
   const totalCount = filteredTasks.length + filteredEpics.length;
 
   const getEpicName = (epicId: string | null) => {
-    if (!epicId) return null;
+    if (!epicId) {
+      return null;
+    }
     const epic = allEpics.find((e) => e.id === epicId);
     return epic?.title || epicId;
   };

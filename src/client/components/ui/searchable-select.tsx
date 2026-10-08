@@ -37,7 +37,9 @@ export function SearchableSelect({
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const filteredOptions = React.useMemo(() => {
-    if (!search) return options;
+    if (!search) {
+      return options;
+    }
     const searchLower = search.toLowerCase();
     return options.filter(
       (option) =>

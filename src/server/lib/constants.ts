@@ -12,11 +12,8 @@ export const HTTP_STATUS_NOT_FOUND = 404;
 export const MAX_PRIORITY = 5;
 export const SQLITE_MILLISECONDS = 1000;
 
-export const APP_ERROR_STATUS_CODES = [
-  HTTP_STATUS_BAD_REQUEST,
-  HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_CONFLICT,
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
-] as const;
-
-export type AppErrorStatusCode = (typeof APP_ERROR_STATUS_CODES)[number];
+export type AppErrorStatusCode =
+  | typeof HTTP_STATUS_BAD_REQUEST
+  | typeof HTTP_STATUS_NOT_FOUND
+  | typeof HTTP_STATUS_CONFLICT
+  | typeof HTTP_STATUS_INTERNAL_SERVER_ERROR;

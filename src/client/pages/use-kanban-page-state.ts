@@ -1,15 +1,13 @@
 import { useState } from 'react';
 
 import { useAppData, useBulkArchiveCompleted } from '@/hooks/use-data';
-import { useTaskDetailActions } from '@/hooks/use-task-detail-actions';
 import { useTaskEvents } from '@/hooks/use-task-events';
 import { useUIStore } from '@/stores';
 
 export function useKanbanPageState() {
   const { tasks, epics, isLoading, error, refetch } = useAppData();
   const bulkArchive = useBulkArchiveCompleted();
-  const detailActions = useTaskDetailActions(tasks, epics);
-  const { openCreateModal } = useUIStore();
+  const { openCreateModal, openEpicDetail, openTaskDetail } = useUIStore();
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
   useTaskEvents(refetch);
@@ -27,7 +25,6 @@ export function useKanbanPageState() {
   }
 
   return {
-    ...detailActions,
     bulkArchive,
     epics,
     error,
@@ -35,7 +32,8 @@ export function useKanbanPageState() {
     isLoading,
     openArchiveConfirm,
     openCreateModal,
-    refetch,
+    openEpicDetail,
+    openTaskDetail,
     showArchiveConfirm,
     tasks,
     updateArchiveConfirm: closeArchiveConfirm,

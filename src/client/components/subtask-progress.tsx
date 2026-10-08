@@ -13,14 +13,22 @@ interface SubtaskProgressProps {
 }
 
 export function SubtaskProgress({ completed, total }: SubtaskProgressProps) {
-  if (total === 0) return null;
+  if (total === 0) {
+    return null;
+  }
 
   const percentage = Math.round((completed / total) * FULL_PERCENTAGE);
 
   const getColorClass = (pct: number): string => {
-    if (pct === SUBTASK_PROGRESS_COMPLETE_THRESHOLD) return '[&>div]:bg-green-500';
-    if (pct >= SUBTASK_PROGRESS_GOOD_THRESHOLD) return '[&>div]:bg-blue-500';
-    if (pct >= SUBTASK_PROGRESS_WARNING_THRESHOLD) return '[&>div]:bg-yellow-500';
+    if (pct === SUBTASK_PROGRESS_COMPLETE_THRESHOLD) {
+      return '[&>div]:bg-green-500';
+    }
+    if (pct >= SUBTASK_PROGRESS_GOOD_THRESHOLD) {
+      return '[&>div]:bg-blue-500';
+    }
+    if (pct >= SUBTASK_PROGRESS_WARNING_THRESHOLD) {
+      return '[&>div]:bg-yellow-500';
+    }
     return '[&>div]:bg-red-500';
   };
 

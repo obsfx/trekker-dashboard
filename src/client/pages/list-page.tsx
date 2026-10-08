@@ -9,27 +9,16 @@ import { useListPageState } from '@/pages/use-list-page-state';
 export function ListPage() {
   const {
     clearFilters,
-    closeEpicDetail,
-    closeTaskDetail,
     data,
-    epics,
     error,
     filteredItems,
     filters,
-    handleEpicModalTaskClick,
     handleRowClick,
-    handleTaskModalEpicClick,
     hasActiveFilters,
     isLoading,
-    openTaskDetail,
-    refetch,
     searchQuery,
-    selectedEpic,
-    selectedEpicTasks,
-    selectedTask,
     setFilters,
     setSearchQuery,
-    tasks,
     toggleTypeFilter,
     totalPages,
   } = useListPageState();
@@ -63,19 +52,7 @@ export function ListPage() {
         />
       </main>
 
-      <EntityDetailModals
-        allTasks={tasks}
-        epics={epics}
-        selectedEpic={selectedEpic}
-        selectedEpicTasks={selectedEpicTasks}
-        selectedTask={selectedTask}
-        onCloseEpicDetail={closeEpicDetail}
-        onCloseTaskDetail={closeTaskDetail}
-        onEpicDetailTaskClick={handleEpicModalTaskClick}
-        onTaskDetailEpicClick={handleTaskModalEpicClick}
-        onTaskDetailTaskClick={(task) => openTaskDetail(task.id)}
-        onUpdate={refetch}
-      />
+      <EntityDetailModals />
     </>
   );
 }

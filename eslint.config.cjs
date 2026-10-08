@@ -1,7 +1,7 @@
-import tseslint from 'typescript-eslint';
-import eslintConfigPrettier from 'eslint-config-prettier';
-import unicorn from 'eslint-plugin-unicorn';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
+const tseslint = require('typescript-eslint');
+const eslintConfigPrettier = require('eslint-config-prettier');
+const unicorn = require('eslint-plugin-unicorn').default;
+const simpleImportSort = require('eslint-plugin-simple-import-sort');
 
 const RELATIVE_IMPORT_MESSAGE =
   'Use absolute imports via @/ or @server/. Same-folder relative imports are allowed only for index.ts barrel re-exports.';
@@ -10,39 +10,19 @@ function isPascalCase(name) {
   return /^[A-Z][A-Za-z0-9]*$/.test(name);
 }
 
-function nodeContainsJsx(node, seen = new WeakSet()) {
-  if (!node || typeof node !== 'object') {
+function nodeContainsJsx(node, visitorKeys) {
+  if (!node) {
     return false;
   }
-
-  if (seen.has(node)) {
-    return false;
-  }
-
-  seen.add(node);
 
   if (node.type === 'JSXElement' || node.type === 'JSXFragment') {
     return true;
   }
 
-  for (const [key, value] of Object.entries(node)) {
-    if (key === 'parent') {
-      continue;
-    }
-
-    if (Array.isArray(value)) {
-      if (value.some((child) => nodeContainsJsx(child, seen))) {
-        return true;
-      }
-      continue;
-    }
-
-    if (nodeContainsJsx(value, seen)) {
-      return true;
-    }
-  }
-
-  return false;
+  const childKeys = visitorKeys[node.type] ?? [];
+  return childKeys.some((key) =>
+    [node[key]].flat().some((child) => nodeContainsJsx(child, visitorKeys))
+  );
 }
 
 const dashboardPlugin = {
@@ -71,7 +51,7 @@ const dashboardPlugin = {
             return;
           }
 
-          if (!nodeContainsJsx(functionNode.body)) {
+          if (!nodeContainsJsx(functionNode.body, context.sourceCode.visitorKeys)) {
             return;
           }
 
@@ -108,7 +88,7 @@ const dashboardPlugin = {
   },
 };
 
-export default tseslint.config(
+module.exports = tseslint.config(
   {
     ignores: [
       '**/dist/**',
@@ -116,8 +96,8 @@ export default tseslint.config(
       '**/drizzle/**',
       '**/site/**',
       '**/bin/**',
-      'eslint.config.mjs',
-      'postcss.config.mjs',
+      'eslint.config.cjs',
+      'vite.config.cjs',
     ],
   },
 
@@ -130,7 +110,7 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: __dirname,
       },
     },
   },
@@ -237,7 +217,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['src/**/*.{ts,tsx}', 'tests/**/*.ts', 'vite.config.ts'],
+    files: ['src/**/*.{ts,tsx}', 'tests/**/*.ts'],
     rules: {
       curly: 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
@@ -307,7 +287,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['src/server/index.ts'],
+    files: ['src/server/dev.ts'],
     rules: {
       'no-console': 'off',
     },

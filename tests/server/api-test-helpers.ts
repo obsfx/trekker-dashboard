@@ -7,6 +7,15 @@ import { createApp } from '@server/index';
 import { resetDb, runWithDbPath } from '@server/lib/db';
 import { expect } from 'bun:test';
 
+export type { HistoryResponse } from '@/hooks/use-history';
+export type { ListResponse } from '@/hooks/use-list';
+export type {
+  Comment as CommentResponse,
+  Epic as EpicResponse,
+  Project as ProjectResponse,
+  Task as TaskResponse,
+} from '@/types';
+
 const TREKKER_CLI_PATH = join(import.meta.dir, '../../../trekker/src/index.ts');
 
 export const JSON_HEADERS = { 'Content-Type': 'application/json' };
@@ -14,52 +23,6 @@ export const JSON_HEADERS = { 'Content-Type': 'application/json' };
 export interface ApiErrorResponse {
   code: string;
   error: string;
-}
-
-export interface ProjectResponse {
-  id: string;
-  name: string;
-  config: {
-    issuePrefix: string;
-    epicPrefix: string;
-    commentPrefix: string;
-  };
-}
-
-export interface EpicResponse {
-  id: string;
-  projectId: string;
-  title: string;
-  description: string | null;
-  status: string;
-  priority: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface TaskResponse {
-  id: string;
-  projectId: string;
-  epicId: string | null;
-  parentTaskId: string | null;
-  title: string;
-  description: string | null;
-  priority: number;
-  status: string;
-  tags: string | null;
-  createdAt: string;
-  updatedAt: string;
-  dependsOn: string[];
-  blocks: string[];
-}
-
-export interface CommentResponse {
-  id: string;
-  taskId: string;
-  author: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface DependencyResponse {
@@ -72,41 +35,6 @@ export interface DependencyResponse {
 export interface ArchiveResponse {
   tasksArchived: number;
   epicsArchived: number;
-}
-
-export interface ListItemResponse {
-  type: 'epic' | 'task' | 'subtask';
-  id: string;
-  title: string;
-  status: string;
-  priority: number;
-  parentId: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ListResponse {
-  total: number;
-  page: number;
-  limit: number;
-  items: ListItemResponse[];
-}
-
-export interface HistoryEventResponse {
-  id: number;
-  action: 'create' | 'update' | 'delete';
-  entityType: 'epic' | 'task' | 'subtask' | 'comment' | 'dependency';
-  entityId: string;
-  snapshot: Record<string, unknown> | null;
-  changes: Record<string, { from: unknown; to: unknown }> | null;
-  timestamp: string;
-}
-
-export interface HistoryResponse {
-  total: number;
-  page: number;
-  limit: number;
-  events: HistoryEventResponse[];
 }
 
 export interface SearchResultResponse {
@@ -188,7 +116,10 @@ export function getDbPath(cwd: string): string {
   return join(cwd, '.trekker', 'trekker.db');
 }
 
-export function createApiTestContext(cleanupDirs: string[], initArgs: string[] = []): ApiTestContext {
+export function createApiTestContext(
+  cleanupDirs: string[],
+  initArgs: string[] = []
+): ApiTestContext {
   const cwd = createTempProject(initArgs);
   const dbPath = getDbPath(cwd);
   const app = createApp();
@@ -224,7 +155,10 @@ export function createApiTestContext(cleanupDirs: string[], initArgs: string[] =
     return response.body;
   }
 
-  async function createComment(taskId: string, input: CreateCommentInput): Promise<CommentResponse> {
+  async function createComment(
+    taskId: string,
+    input: CreateCommentInput
+  ): Promise<CommentResponse> {
     const response = await requestJson<CommentResponse>(`/api/tasks/${taskId}/comments`, {
       method: 'POST',
       headers: JSON_HEADERS,

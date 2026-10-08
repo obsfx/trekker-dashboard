@@ -69,7 +69,7 @@ export function CreateForm({ form, type, epics, parentTasks }: CreateFormProps) 
                 <SelectContent>
                   {statusOptions.map((s) => (
                     <SelectItem key={s} value={s}>
-                      {STATUS_LABELS[s]}
+                      {STATUS_LABELS.get(s)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -92,8 +92,8 @@ export function CreateForm({ form, type, epics, parentTasks }: CreateFormProps) 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(PRIORITY_LABELS).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
+                  {[...PRIORITY_LABELS].map(([value, label]) => (
+                    <SelectItem key={value} value={String(value)}>
                       P{value} - {label}
                     </SelectItem>
                   ))}

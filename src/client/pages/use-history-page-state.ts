@@ -1,13 +1,11 @@
 import { useState } from 'react';
 
-import { useAppData } from '@/hooks/use-data';
 import { type HistoryEntityType, type HistoryFilters, useHistory } from '@/hooks/use-history';
-import { useTaskDetailActions } from '@/hooks/use-task-detail-actions';
 import { DEFAULT_HISTORY_PAGE_SIZE } from '@/lib/constants';
+import { useUIStore } from '@/stores';
 
 export function useHistoryPageState() {
-  const { epics, refetch, tasks } = useAppData();
-  const detailActions = useTaskDetailActions(tasks, epics);
+  const { openEpicDetail, openTaskDetail } = useUIStore();
   const [filters, setFilters] = useState<HistoryFilters>({
     limit: DEFAULT_HISTORY_PAGE_SIZE,
     page: 1,
@@ -15,8 +13,13 @@ export function useHistoryPageState() {
   const { data, error, isLoading } = useHistory(filters);
 
   function handleEntityClick(type: HistoryEntityType, id: string) {
-    if (type === 'task' || type === 'subtask' || type === 'epic') {
-      detailActions.openHistoryEntity(type, id);
+    if (type === 'epic') {
+      openEpicDetail(id);
+      return;
+    }
+
+    if (type === 'task' || type === 'subtask') {
+      openTaskDetail(id);
     }
   }
 
@@ -26,16 +29,12 @@ export function useHistoryPageState() {
   }
 
   return {
-    ...detailActions,
     data,
-    epics,
     error,
     filters,
     handleEntityClick,
     isLoading,
-    refetch,
     setFilters,
-    tasks,
     totalPages,
   };
 }

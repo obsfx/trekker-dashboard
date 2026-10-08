@@ -1,4 +1,6 @@
-import type { EpicFormData } from '@/components/epic-detail/schema';
+import { DEFAULT_PRIORITY } from '@/lib/constants';
+import { readApiErrorMessage } from '@/lib/errors';
+import type { EpicFormData } from '@/lib/work-item-schema';
 import type { Epic } from '@/types';
 
 interface UpdateEpicRequestPayload {
@@ -8,21 +10,13 @@ interface UpdateEpicRequestPayload {
   priority?: number;
 }
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'error' in error && typeof error.error === 'string') {
-    return error.error;
-  }
-
-  return fallback;
-}
-
 export function getEpicFormValues(epic: Epic | null): EpicFormData {
   if (!epic) {
     return {
       title: '',
       description: '',
       status: 'todo',
-      priority: 2,
+      priority: DEFAULT_PRIORITY,
     };
   }
 
@@ -34,7 +28,10 @@ export function getEpicFormValues(epic: Epic | null): EpicFormData {
   };
 }
 
-export async function updateEpicRequest(id: string, payload: UpdateEpicRequestPayload) {
+export async function updateEpicRequest(
+  id: string,
+  payload: UpdateEpicRequestPayload
+): Promise<void> {
   const response = await fetch(`/api/epics/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -42,11 +39,9 @@ export async function updateEpicRequest(id: string, payload: UpdateEpicRequestPa
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(getErrorMessage(error, 'Failed to update epic'));
+    const message = await readApiErrorMessage(response, 'Failed to update epic');
+    throw new Error(message);
   }
-
-  return response.json();
 }
 
 export async function deleteEpicRequest(id: string) {
@@ -55,7 +50,7 @@ export async function deleteEpicRequest(id: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(getErrorMessage(error, 'Failed to delete epic'));
+    const message = await readApiErrorMessage(response, 'Failed to delete epic');
+    throw new Error(message);
   }
 }

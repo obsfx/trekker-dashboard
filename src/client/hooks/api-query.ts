@@ -1,11 +1,9 @@
 'use client';
 
+import { readApiErrorMessage } from '@/lib/errors';
+
 type QueryParamScalar = number | string;
 type QueryParamValue = QueryParamScalar | readonly QueryParamScalar[] | undefined;
-
-interface ApiErrorResponse {
-  error?: string;
-}
 
 function appendQueryParam(searchParams: URLSearchParams, key: string, value: QueryParamValue) {
   if (value === undefined) {
@@ -24,7 +22,7 @@ function appendQueryParam(searchParams: URLSearchParams, key: string, value: Que
   searchParams.set(key, String(value));
 }
 
-export function buildQueryParams(params: Record<string, QueryParamValue>): URLSearchParams {
+function buildQueryParams(params: Record<string, QueryParamValue>): URLSearchParams {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(params)) {
@@ -48,8 +46,8 @@ export async function fetchQuery<T>(
 
   const response = await fetch(url);
   if (!response.ok) {
-    const error: ApiErrorResponse = await response.json();
-    throw new Error(error.error || fallbackMessage);
+    const message = await readApiErrorMessage(response, fallbackMessage);
+    throw new Error(message);
   }
 
   return response.json();

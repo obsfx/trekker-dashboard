@@ -102,7 +102,7 @@ export function useTaskEvents(onTaskChange?: () => void) {
             break;
           case 'task_updated':
             title = `Task ${data.taskId} updated`;
-            description = `"${data.taskTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
+            description = `"${data.taskTitle}" → ${STATUS_LABELS.get(data.status) ?? data.status}`;
             break;
           case 'task_deleted':
             title = `Task ${data.taskId} deleted`;
@@ -114,7 +114,7 @@ export function useTaskEvents(onTaskChange?: () => void) {
             break;
           case 'epic_updated':
             title = `Epic ${data.epicId} updated`;
-            description = `"${data.epicTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
+            description = `"${data.epicTitle}" → ${STATUS_LABELS.get(data.status) ?? data.status}`;
             break;
           case 'epic_deleted':
             title = `Epic ${data.epicId} deleted`;

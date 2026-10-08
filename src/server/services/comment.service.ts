@@ -1,20 +1,13 @@
 import { NotFoundError } from '@server/errors';
 import type { Comment } from '@server/lib/db';
-import { comments, getDb, tasks } from '@server/lib/db';
+import { comments, getDb } from '@server/lib/db';
 import { generateId } from '@server/lib/id-generator';
+import { assertTaskExists } from '@server/services/entity-guards';
 import { eq } from 'drizzle-orm';
 
 interface CreateCommentInput {
   author: string;
   content: string;
-}
-
-async function assertTaskExists(taskId: string): Promise<void> {
-  const db = getDb();
-  const result = await db.select().from(tasks).where(eq(tasks.id, taskId));
-  if (!result[0]) {
-    throw new NotFoundError('Task', taskId);
-  }
 }
 
 export async function getByTaskId(taskId: string): Promise<Comment[]> {

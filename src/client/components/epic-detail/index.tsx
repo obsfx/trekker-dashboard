@@ -43,7 +43,9 @@ export function EpicDetailModal({
     onClose();
   };
 
-  if (!epic) return null;
+  if (!epic) {
+    return null;
+  }
 
   const breadcrumbItems = buildEpicBreadcrumbItems(epic);
 

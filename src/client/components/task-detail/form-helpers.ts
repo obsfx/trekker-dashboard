@@ -1,4 +1,6 @@
-import type { TaskFormData } from '@/components/task-detail/schema';
+import { DEFAULT_PRIORITY } from '@/lib/constants';
+import { readApiErrorMessage } from '@/lib/errors';
+import type { TaskFormData } from '@/lib/work-item-schema';
 import type { Task } from '@/types';
 
 interface UpdateTaskRequestPayload {
@@ -10,21 +12,13 @@ interface UpdateTaskRequestPayload {
   epicId?: string | null;
 }
 
-function getErrorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === 'object' && 'error' in error && typeof error.error === 'string') {
-    return error.error;
-  }
-
-  return fallback;
-}
-
 export function getTaskFormValues(task: Task | null): TaskFormData {
   if (!task) {
     return {
       title: '',
       description: '',
       status: 'todo',
-      priority: 2,
+      priority: DEFAULT_PRIORITY,
       tags: '',
       epicId: null,
     };
@@ -40,7 +34,10 @@ export function getTaskFormValues(task: Task | null): TaskFormData {
   };
 }
 
-export async function updateTaskRequest(id: string, payload: UpdateTaskRequestPayload) {
+export async function updateTaskRequest(
+  id: string,
+  payload: UpdateTaskRequestPayload
+): Promise<void> {
   const response = await fetch(`/api/tasks/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -48,11 +45,9 @@ export async function updateTaskRequest(id: string, payload: UpdateTaskRequestPa
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(getErrorMessage(error, 'Failed to update task'));
+    const message = await readApiErrorMessage(response, 'Failed to update task');
+    throw new Error(message);
   }
-
-  return response.json();
 }
 
 export async function deleteTaskRequest(id: string) {
@@ -61,7 +56,7 @@ export async function deleteTaskRequest(id: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(getErrorMessage(error, 'Failed to delete task'));
+    const message = await readApiErrorMessage(response, 'Failed to delete task');
+    throw new Error(message);
   }
 }

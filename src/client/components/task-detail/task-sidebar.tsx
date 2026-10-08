@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Epic, Task } from '@/types';
 
-interface TaskSidebarProps {
+export interface TaskSidebarProps {
   task: Task;
   subtasks: Task[];
   onStatusChange: (status: string) => void;

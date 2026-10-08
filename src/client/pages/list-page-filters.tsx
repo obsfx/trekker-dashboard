@@ -20,11 +20,11 @@ const TYPE_OPTIONS: FilterOption<ListEntityType>[] = [
 
 const STATUS_OPTIONS: FilterOption[] = TASK_STATUSES.map((status) => ({
   value: status,
-  label: STATUS_LABELS[status],
+  label: STATUS_LABELS.get(status) ?? status,
 }));
 
-const PRIORITY_OPTIONS: FilterOption[] = Object.entries(PRIORITY_LABELS).map(([value, label]) => ({
-  value,
+const PRIORITY_OPTIONS: FilterOption[] = [...PRIORITY_LABELS].map(([value, label]) => ({
+  value: String(value),
   label: `P${value} - ${label}`,
 }));
 

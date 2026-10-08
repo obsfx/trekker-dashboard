@@ -1,8 +1,13 @@
-import { NotFoundError, ValidationError } from '@server/errors';
+import { NotFoundError } from '@server/errors';
 import { DEFAULT_PRIORITY } from '@server/lib/constants';
 import type { Dependency, Task } from '@server/lib/db';
-import { comments, dependencies, epics, getDb, projects, tasks } from '@server/lib/db';
+import { comments, dependencies, getDb, tasks } from '@server/lib/db';
 import { generateId } from '@server/lib/id-generator';
+import {
+  assertEpicExists,
+  assertTaskExists,
+  getInitializedProject,
+} from '@server/services/entity-guards';
 import { eq, or } from 'drizzle-orm';
 
 interface TaskWithDeps extends Task {
@@ -42,31 +47,6 @@ async function getAllDeps(): Promise<Dependency[]> {
   return db.select().from(dependencies);
 }
 
-async function assertEpicExists(epicId: string): Promise<void> {
-  const db = getDb();
-  const result = await db.select().from(epics).where(eq(epics.id, epicId));
-  if (!result[0]) {
-    throw new NotFoundError('Epic', epicId);
-  }
-}
-
-async function assertTaskExists(taskId: string): Promise<void> {
-  const db = getDb();
-  const result = await db.select().from(tasks).where(eq(tasks.id, taskId));
-  if (!result[0]) {
-    throw new NotFoundError('Task', taskId);
-  }
-}
-
-async function getProject() {
-  const db = getDb();
-  const result = await db.select().from(projects);
-  if (!result[0]) {
-    throw new ValidationError('Project not initialized');
-  }
-  return result[0];
-}
-
 export async function getAll(): Promise<TaskWithDeps[]> {
   const db = getDb();
   const [allTasks, allDeps] = await Promise.all([
@@ -101,7 +81,7 @@ export async function create(input: CreateTaskInput): Promise<TaskWithDeps> {
     await assertTaskExists(input.parentTaskId);
   }
 
-  const project = await getProject();
+  const project = await getInitializedProject();
   const id = await generateId('task');
   const now = new Date();
 
@@ -134,15 +114,18 @@ export async function update(id: string, input: UpdateTaskInput): Promise<TaskWi
     await assertEpicExists(input.epicId);
   }
 
-  const updates: Record<string, unknown> = { updatedAt: new Date() };
-  if (input.title !== undefined) updates.title = input.title;
-  if (input.description !== undefined) updates.description = input.description;
-  if (input.status !== undefined) updates.status = input.status;
-  if (input.priority !== undefined) updates.priority = input.priority;
-  if (input.tags !== undefined) updates.tags = input.tags;
-  if (input.epicId !== undefined) updates.epicId = input.epicId;
-
-  await db.update(tasks).set(updates).where(eq(tasks.id, id));
+  await db
+    .update(tasks)
+    .set({
+      title: input.title,
+      description: input.description,
+      status: input.status,
+      priority: input.priority,
+      tags: input.tags,
+      epicId: input.epicId,
+      updatedAt: new Date(),
+    })
+    .where(eq(tasks.id, id));
 
   return getById(id);
 }

@@ -1,3 +1,5 @@
+import { DEFAULT_PAGE } from '@server/lib/constants';
+
 export function parseCsvQuery(value: string | undefined): string[] | undefined {
   if (!value) {
     return;
@@ -13,7 +15,7 @@ export function parseCsvQuery(value: string | undefined): string[] | undefined {
   }
 }
 
-export function parseQueryNumber(value: string | undefined, fallback: number): number {
+function parseQueryNumber(value: string | undefined, fallback: number): number {
   if (!value) {
     return fallback;
   }
@@ -39,4 +41,37 @@ export function parseNumberCsvQuery(value: string | undefined): number[] | undef
   if (parsedNumbers.length > 0) {
     return parsedNumbers;
   }
+}
+
+export type SqlParam = string | number;
+
+interface Pagination {
+  limit: number;
+  page: number;
+  offset: number;
+}
+
+export function parsePagination(
+  limitParam: string | undefined,
+  pageParam: string | undefined,
+  defaultLimit: number
+): Pagination {
+  const limit = parseQueryNumber(limitParam, defaultLimit);
+  const page = parseQueryNumber(pageParam, DEFAULT_PAGE);
+  return { limit, page, offset: (page - 1) * limit };
+}
+
+export function addInCondition(
+  conditions: string[],
+  params: SqlParam[],
+  column: string,
+  values: readonly SqlParam[] | undefined
+): void {
+  if (!values || values.length === 0) {
+    return;
+  }
+
+  const placeholders = values.map(() => '?').join(', ');
+  conditions.push(`${column} IN (${placeholders})`);
+  params.push(...values);
 }

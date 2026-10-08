@@ -3,16 +3,16 @@ import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { errorHandler } from '@server/middleware/error-handler';
-import archiveRoutes from '@server/routes/archive';
-import commentsRoutes from '@server/routes/comments';
-import dependenciesRoutes from '@server/routes/dependencies';
-import epicsRoutes from '@server/routes/epics';
-import eventsRoutes from '@server/routes/events';
-import historyRoutes from '@server/routes/history';
-import listRoutes from '@server/routes/list';
-import projectRoutes from '@server/routes/project';
-import searchRoutes from '@server/routes/search';
-import tasksRoutes from '@server/routes/tasks';
+import { archiveRoutes } from '@server/routes/archive';
+import { commentsRoutes } from '@server/routes/comments';
+import { dependenciesRoutes } from '@server/routes/dependencies';
+import { epicsRoutes } from '@server/routes/epics';
+import { eventsRoutes } from '@server/routes/events';
+import { historyRoutes } from '@server/routes/history';
+import { listRoutes } from '@server/routes/list';
+import { projectRoutes } from '@server/routes/project';
+import { searchRoutes } from '@server/routes/search';
+import { tasksRoutes } from '@server/routes/tasks';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { cors } from 'hono/cors';
@@ -77,17 +77,4 @@ export function createApp() {
   }
 
   return app;
-}
-
-// Export for CLI to use
-const app = createApp();
-
-if (import.meta.main) {
-  const port = parseInt(process.env.PORT || '3001', 10);
-  console.log(`Server starting on http://localhost:${port}`);
-
-  Bun.serve({
-    port,
-    fetch: app.fetch,
-  });
 }

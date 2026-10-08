@@ -9,17 +9,17 @@ export type ProjectConfigKey = (typeof PROJECT_CONFIG_KEYS)[number];
 
 export type ProjectConfig = Record<ProjectConfigKey, string>;
 
-export const PROJECT_CONFIG_DEFAULTS: ProjectConfig = {
+export const PROJECT_CONFIG_DEFAULTS = {
   issue_prefix: 'TREK',
   epic_prefix: 'EPIC',
   comment_prefix: 'CMT',
-};
+} satisfies ProjectConfig;
 
 // ID generation types
 export type EntityType = 'task' | 'epic' | 'comment';
 
-export const ENTITY_CONFIG_KEY_MAP: Record<EntityType, ProjectConfigKey> = {
+export const ENTITY_CONFIG_KEY_MAP = {
   task: 'issue_prefix',
   epic: 'epic_prefix',
   comment: 'comment_prefix',
-};
+} satisfies Record<EntityType, ProjectConfigKey>;

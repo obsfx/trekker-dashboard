@@ -7,14 +7,19 @@ import { Button } from '@/components/ui/button';
 import { NativePopover } from '@/components/ui/native-popover';
 import { SORT_OPTIONS, type SortOption } from '@/lib/sort';
 
-export type TypeFilter = 'all' | 'epic' | 'task';
+type TypeFilter = 'all' | 'epic' | 'task';
 
 export interface ColumnFilterState {
   sort: SortOption;
   type: TypeFilter;
 }
 
-const TYPE_OPTIONS: { value: TypeFilter; label: string }[] = [
+interface TypeOption {
+  value: TypeFilter;
+  label: string;
+}
+
+const TYPE_OPTIONS: TypeOption[] = [
   { value: 'all', label: 'All' },
   { value: 'epic', label: 'Epics only' },
   { value: 'task', label: 'Tasks only' },

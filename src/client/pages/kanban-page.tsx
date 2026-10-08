@@ -8,21 +8,14 @@ import { useKanbanPageState } from '@/pages/use-kanban-page-state';
 
 export function KanbanPage() {
   const {
-    closeEpicDetail,
-    closeTaskDetail,
     epics,
     error,
     handleArchiveAllCompleted,
-    handleEpicModalTaskClick,
     isLoading,
     openArchiveConfirm,
     openCreateModal,
     openEpicDetail,
     openTaskDetail,
-    refetch,
-    selectedEpic,
-    selectedEpicTasks,
-    selectedTask,
     showArchiveConfirm,
     tasks,
     updateArchiveConfirm,
@@ -66,22 +59,7 @@ export function KanbanPage() {
         onConfirm={handleArchiveAllCompleted}
       />
 
-      <EntityDetailModals
-        allTasks={tasks}
-        epics={epics}
-        selectedEpic={selectedEpic}
-        selectedEpicTasks={selectedEpicTasks}
-        selectedTask={selectedTask}
-        onCloseEpicDetail={closeEpicDetail}
-        onCloseTaskDetail={closeTaskDetail}
-        onEpicDetailTaskClick={handleEpicModalTaskClick}
-        onTaskDetailEpicClick={(epic) => {
-          closeTaskDetail();
-          openEpicDetail(epic.id);
-        }}
-        onTaskDetailTaskClick={(task) => openTaskDetail(task.id)}
-        onUpdate={refetch}
-      />
+      <EntityDetailModals />
     </>
   );
 }

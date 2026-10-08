@@ -11,7 +11,7 @@ import {
   type CreateFormValues,
   subtaskFormSchema,
 } from '@/components/create-modal/schema';
-import { getErrorMessage } from '@/lib/errors';
+import { getErrorMessage, readApiErrorMessage } from '@/lib/errors';
 import type { CreateType } from '@/types';
 
 interface UseCreateFormOptions {
@@ -83,8 +83,8 @@ export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCr
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create epic');
+      const message = await readApiErrorMessage(response, 'Failed to create epic');
+      throw new Error(message);
     }
 
     return response.json();
@@ -98,8 +98,8 @@ export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCr
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create task');
+      const message = await readApiErrorMessage(response, 'Failed to create task');
+      throw new Error(message);
     }
 
     return response.json();
@@ -113,8 +113,8 @@ export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCr
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create subtask');
+      const message = await readApiErrorMessage(response, 'Failed to create subtask');
+      throw new Error(message);
     }
 
     return response.json();
@@ -144,7 +144,7 @@ export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCr
     },
     (errors) => {
       const firstError = Object.values(errors)[0];
-      if (firstError?.message && typeof firstError.message === 'string') {
+      if (firstError?.message) {
         toast.error(firstError.message);
       }
     }

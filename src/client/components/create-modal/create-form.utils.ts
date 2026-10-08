@@ -1,3 +1,4 @@
+import { DEFAULT_PRIORITY } from '@/lib/constants';
 import type { Epic, Task } from '@/types';
 
 interface CreateSelectOption {
@@ -24,7 +25,7 @@ export function getDefaultCreateFormValues(defaultStatus?: string) {
     title: '',
     description: '',
     status: defaultStatus ?? 'todo',
-    priority: 2,
+    priority: DEFAULT_PRIORITY,
     tags: '',
     epicId: null,
     parentTaskId: '',

@@ -55,7 +55,9 @@ export function TaskDetailModal({
     onClose();
   };
 
-  if (!task) return null;
+  if (!task) {
+    return null;
+  }
 
   const subtasks = getSubtasksForTask(allTasks, task.id);
   const breadcrumbItems = buildTaskBreadcrumbItems(epics, allTasks, {

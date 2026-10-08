@@ -35,15 +35,17 @@ const buttonVariants = cva(
   }
 );
 
-const Button = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<'button'> &
-    VariantProps<typeof buttonVariants> & {
-      asChild?: boolean;
-      loading?: boolean;
-      loadingText?: React.ReactNode;
-    }
->(
+interface ButtonOwnProps {
+  asChild?: boolean;
+  loading?: boolean;
+  loadingText?: React.ReactNode;
+}
+
+type ButtonProps = React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> &
+  ButtonOwnProps;
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       className,

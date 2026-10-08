@@ -1,24 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { readApiErrorMessage } from '@/lib/errors';
 import type { ProjectConfig } from '@/lib/types';
 import type { Epic, Project, Task } from '@/types';
 
 // Fetch functions
 async function fetchTasks(): Promise<Task[]> {
   const res = await fetch('/api/tasks');
-  if (!res.ok) throw new Error('Failed to fetch tasks');
+  if (!res.ok) {
+    throw new Error('Failed to fetch tasks');
+  }
   return res.json();
 }
 
 async function fetchEpics(): Promise<Epic[]> {
   const res = await fetch('/api/epics');
-  if (!res.ok) throw new Error('Failed to fetch epics');
+  if (!res.ok) {
+    throw new Error('Failed to fetch epics');
+  }
   return res.json();
 }
 
 async function fetchProject(): Promise<Project | null> {
   const res = await fetch('/api/project');
-  if (!res.ok) return null;
+  if (!res.ok) {
+    return null;
+  }
   return res.json();
 }
 
@@ -56,8 +63,8 @@ export function useUpdateProjectConfig() {
       });
 
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to update project config');
+        const message = await readApiErrorMessage(res, 'Failed to update project config');
+        throw new Error(message);
       }
 
       return res.json();
@@ -97,8 +104,8 @@ export function useBulkArchiveCompleted() {
         method: 'POST',
       });
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Failed to archive completed items');
+        const message = await readApiErrorMessage(res, 'Failed to archive completed items');
+        throw new Error(message);
       }
       return res.json();
     },

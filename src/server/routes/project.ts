@@ -21,4 +21,4 @@ app.patch('/config', zValidator('json', updateProjectConfigSchema), async (c) =>
   return c.json(config);
 });
 
-export default app;
+export { app as projectRoutes };

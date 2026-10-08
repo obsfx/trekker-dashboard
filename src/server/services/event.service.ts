@@ -17,13 +17,33 @@ interface EpicSnapshot {
   updatedAt: Date;
 }
 
-type SSEEvent =
-  | { type: 'task_created'; taskId: string; taskTitle: string; status: string }
-  | { type: 'task_updated'; taskId: string; taskTitle: string; status: string }
-  | { type: 'task_deleted'; taskId: string; taskTitle: string }
-  | { type: 'epic_created'; epicId: string; epicTitle: string; status: string }
-  | { type: 'epic_updated'; epicId: string; epicTitle: string; status: string }
-  | { type: 'epic_deleted'; epicId: string; epicTitle: string };
+interface TaskChangedEvent {
+  type: 'task_created' | 'task_updated';
+  taskId: string;
+  taskTitle: string;
+  status: string;
+}
+
+interface TaskDeletedEvent {
+  type: 'task_deleted';
+  taskId: string;
+  taskTitle: string;
+}
+
+interface EpicChangedEvent {
+  type: 'epic_created' | 'epic_updated';
+  epicId: string;
+  epicTitle: string;
+  status: string;
+}
+
+interface EpicDeletedEvent {
+  type: 'epic_deleted';
+  epicId: string;
+  epicTitle: string;
+}
+
+type SSEEvent = TaskChangedEvent | TaskDeletedEvent | EpicChangedEvent | EpicDeletedEvent;
 
 const lastTaskState = new Map<string, TaskSnapshot>();
 const lastEpicState = new Map<string, EpicSnapshot>();

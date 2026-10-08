@@ -1,7 +1,7 @@
 import { DatabaseError, ValidationError } from '@server/errors';
-import { DEFAULT_PAGE, DEFAULT_SEARCH_QUERY_LIMIT } from '@server/lib/constants';
+import { DEFAULT_SEARCH_QUERY_LIMIT } from '@server/lib/constants';
 import { getDb, getSqliteInstance } from '@server/lib/db';
-import { parseCsvQuery, parseQueryNumber } from '@server/lib/query';
+import { addInCondition, parseCsvQuery, parsePagination, type SqlParam } from '@server/lib/query';
 import { Hono } from 'hono';
 
 const app = new Hono();
@@ -33,19 +33,17 @@ app.get('/', async (c) => {
   const typeParam = c.req.query('type');
   const types = parseCsvQuery(typeParam) as SearchEntityType[] | undefined;
   const status = c.req.query('status');
-  const limit = parseQueryNumber(c.req.query('limit'), DEFAULT_SEARCH_QUERY_LIMIT);
-  const page = parseQueryNumber(c.req.query('page'), DEFAULT_PAGE);
-  const offset = (page - 1) * limit;
+  const { limit, page, offset } = parsePagination(
+    c.req.query('limit'),
+    c.req.query('page'),
+    DEFAULT_SEARCH_QUERY_LIMIT
+  );
 
   // Build WHERE conditions
   const conditions: string[] = ['search_index MATCH ?'];
-  const params: (string | number)[] = [query];
+  const params: SqlParam[] = [query];
 
-  if (types && types.length > 0) {
-    const placeholders = types.map(() => '?').join(', ');
-    conditions.push(`entity_type IN (${placeholders})`);
-    params.push(...types);
-  }
+  addInCondition(conditions, params, 'entity_type', types);
 
   if (status) {
     conditions.push('status = ?');
@@ -98,4 +96,4 @@ app.get('/', async (c) => {
   });
 });
 
-export default app;
+export { app as searchRoutes };

@@ -1,42 +1,20 @@
 'use client';
 
-import type { BreadcrumbItem } from '@/components/breadcrumb';
 import { DetailModalShell } from '@/components/shared';
-import { TaskSidebar } from '@/components/task-detail/task-sidebar';
-import type { Epic, Task } from '@/types';
+import type { WorkItemViewProps } from '@/components/shared/work-item-view-props';
+import { TaskSidebar, type TaskSidebarProps } from '@/components/task-detail/task-sidebar';
 
-interface TaskViewProps {
-  task: Task;
-  subtasks: Task[];
-  breadcrumbItems: BreadcrumbItem[];
-  status: string;
-  priority: number;
-  open: boolean;
-  onClose: () => void;
-  onEdit: () => void;
-  onStatusChange: (status: string) => void;
-  onPriorityChange: (priority: number) => void;
-  onTaskClick?: (task: Task) => void;
-  onEpicClick?: (epic: Epic) => void;
-  getEpicById: (id: string) => Epic | undefined;
-  getTaskById: (id: string) => Task | undefined;
-}
+interface TaskViewProps extends WorkItemViewProps, TaskSidebarProps {}
 
 export function TaskView({
   task,
-  subtasks,
   breadcrumbItems,
   status,
   priority,
   open,
   onClose,
   onEdit,
-  onStatusChange,
-  onPriorityChange,
-  onTaskClick,
-  onEpicClick,
-  getEpicById,
-  getTaskById,
+  ...sidebarProps
 }: TaskViewProps) {
   return (
     <DetailModalShell
@@ -47,16 +25,7 @@ export function TaskView({
       description={task.description}
       onEdit={onEdit}
     >
-      <TaskSidebar
-        task={{ ...task, status, priority }}
-        subtasks={subtasks}
-        onStatusChange={onStatusChange}
-        onPriorityChange={onPriorityChange}
-        onTaskClick={onTaskClick}
-        onEpicClick={onEpicClick}
-        getEpicById={getEpicById}
-        getTaskById={getTaskById}
-      />
+      <TaskSidebar {...sidebarProps} task={{ ...task, status, priority }} />
     </DetailModalShell>
   );
 }

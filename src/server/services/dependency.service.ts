@@ -1,20 +1,13 @@
 import { ConflictError, NotFoundError, ValidationError } from '@server/errors';
 import type { Dependency } from '@server/lib/db';
-import { dependencies, getDb, tasks } from '@server/lib/db';
+import { dependencies, getDb } from '@server/lib/db';
 import { generateUuid } from '@server/lib/id-generator';
+import { assertTaskExists } from '@server/services/entity-guards';
 import { and, eq } from 'drizzle-orm';
 
 interface CreateDependencyInput {
   taskId: string;
   dependsOnId: string;
-}
-
-async function assertTaskExists(taskId: string, label: string): Promise<void> {
-  const db = getDb();
-  const result = await db.select().from(tasks).where(eq(tasks.id, taskId));
-  if (!result[0]) {
-    throw new NotFoundError(label, taskId);
-  }
 }
 
 async function wouldCreateCycle(taskId: string, dependsOnId: string): Promise<boolean> {
@@ -63,7 +56,7 @@ export async function create(input: CreateDependencyInput): Promise<Dependency> 
   }
 
   // Validate both tasks exist
-  await assertTaskExists(taskId, 'Task');
+  await assertTaskExists(taskId);
   await assertTaskExists(dependsOnId, 'Dependency task');
 
   // Validate dependency doesn't already exist

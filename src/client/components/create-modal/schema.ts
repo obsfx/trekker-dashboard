@@ -1,15 +1,8 @@
 import { z } from 'zod';
 
-const baseFormSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string(),
-  status: z.string(),
-  priority: z.number().min(0).max(5),
-});
+import { taskFormSchema } from '@/lib/work-item-schema';
 
-export const createFormSchema = baseFormSchema.extend({
-  tags: z.string(),
-  epicId: z.string().nullable(),
+export const createFormSchema = taskFormSchema.extend({
   parentTaskId: z.string(),
 });
 

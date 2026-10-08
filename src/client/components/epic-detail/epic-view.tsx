@@ -1,22 +1,13 @@
 'use client';
 
-import type { BreadcrumbItem } from '@/components/breadcrumb';
 import { EpicSidebar } from '@/components/epic-detail/epic-sidebar';
 import { DetailModalShell } from '@/components/shared';
+import type { WorkItemViewProps } from '@/components/shared/work-item-view-props';
 import type { Epic, Task } from '@/types';
 
-interface EpicViewProps {
+interface EpicViewProps extends WorkItemViewProps {
   epic: Epic;
   tasks: Task[];
-  breadcrumbItems: BreadcrumbItem[];
-  status: string;
-  priority: number;
-  open: boolean;
-  onClose: () => void;
-  onEdit: () => void;
-  onStatusChange: (status: string) => void;
-  onPriorityChange: (priority: number) => void;
-  onTaskClick?: (task: Task) => void;
 }
 
 export function EpicView({

@@ -1,8 +1,13 @@
 'use client';
 
+interface SectionCount {
+  current: number;
+  total: number;
+}
+
 interface SectionHeaderProps {
   children: React.ReactNode;
-  count?: { current: number; total: number };
+  count?: SectionCount;
 }
 
 export function SectionHeader({ children, count }: SectionHeaderProps) {

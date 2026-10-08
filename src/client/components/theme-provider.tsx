@@ -14,10 +14,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const STORAGE_KEY = 'theme';
 
 function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined') {
-    return 'light';
-  }
-
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark';
   }
@@ -25,13 +21,12 @@ function getSystemTheme(): ResolvedTheme {
   return 'light';
 }
 
-function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'system';
+function getStoredTheme(fallback: Theme): Theme {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark' || stored === 'system') {
     return stored;
   }
-  return 'system';
+  return fallback;
 }
 
 function resolveTheme(theme: Theme): ResolvedTheme {
@@ -52,10 +47,7 @@ export function ThemeProvider({
   defaultTheme = 'system',
   disableTransitionOnChange = false,
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return defaultTheme;
-    return getStoredTheme();
-  });
+  const [theme, setThemeState] = useState<Theme>(() => getStoredTheme(defaultTheme));
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolveTheme(theme));
 
   const setTheme = (newTheme: Theme) => {
@@ -85,7 +77,9 @@ export function ThemeProvider({
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (theme !== 'system') {
+      return;
+    }
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = () => {

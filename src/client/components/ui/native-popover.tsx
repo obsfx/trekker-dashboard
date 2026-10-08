@@ -14,7 +14,9 @@ export function NativePopover({ open, onClose, children, className = '' }: Nativ
   const ref = useRef<HTMLDivElement>(null);
   useOnClickOutside(ref as React.RefObject<HTMLElement>, onClose);
 
-  if (!open) return null;
+  if (!open) {
+    return null;
+  }
 
   return (
     <div

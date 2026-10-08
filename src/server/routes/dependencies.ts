@@ -35,4 +35,4 @@ app.delete('/', async (c) => {
   return c.json({ success: true });
 });
 
-export default app;
+export { app as dependenciesRoutes };

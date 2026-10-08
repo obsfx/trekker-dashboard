@@ -1,8 +1,9 @@
-import { NotFoundError, ValidationError } from '@server/errors';
+import { NotFoundError } from '@server/errors';
 import { DEFAULT_PRIORITY } from '@server/lib/constants';
 import type { Epic } from '@server/lib/db';
-import { epics, getDb, projects, tasks } from '@server/lib/db';
+import { epics, getDb, tasks } from '@server/lib/db';
 import { generateId } from '@server/lib/id-generator';
+import { getInitializedProject } from '@server/services/entity-guards';
 import { eq } from 'drizzle-orm';
 
 interface CreateEpicInput {
@@ -17,15 +18,6 @@ interface UpdateEpicInput {
   description?: string | null;
   status?: string;
   priority?: number;
-}
-
-async function getProject() {
-  const db = getDb();
-  const result = await db.select().from(projects);
-  if (!result[0]) {
-    throw new ValidationError('Project not initialized');
-  }
-  return result[0];
 }
 
 export async function getAll(): Promise<Epic[]> {
@@ -46,7 +38,7 @@ export async function getById(id: string): Promise<Epic> {
 
 export async function create(input: CreateEpicInput): Promise<Epic> {
   const db = getDb();
-  const project = await getProject();
+  const project = await getInitializedProject();
   const id = await generateId('epic');
   const now = new Date();
 
@@ -72,13 +64,16 @@ export async function update(id: string, input: UpdateEpicInput): Promise<Epic> 
   // Verify epic exists
   await getById(id);
 
-  const updates: Record<string, unknown> = { updatedAt: new Date() };
-  if (input.title !== undefined) updates.title = input.title;
-  if (input.description !== undefined) updates.description = input.description;
-  if (input.status !== undefined) updates.status = input.status;
-  if (input.priority !== undefined) updates.priority = input.priority;
-
-  await db.update(epics).set(updates).where(eq(epics.id, id));
+  await db
+    .update(epics)
+    .set({
+      title: input.title,
+      description: input.description,
+      status: input.status,
+      priority: input.priority,
+      updatedAt: new Date(),
+    })
+    .where(eq(epics.id, id));
 
   return getById(id);
 }

@@ -34,15 +34,6 @@ export function useTaskDetailActions(tasks: Task[], epics: Epic[]) {
     selectedEpicTasks = tasks.filter((task) => task.epicId === selectedEpic.id);
   }
 
-  function openHistoryEntity(type: 'epic' | 'task' | 'subtask', id: string) {
-    if (type === 'epic') {
-      openEpicDetail(id);
-      return;
-    }
-
-    openTaskDetail(id);
-  }
-
   function handleTaskModalEpicClick(epic: Epic) {
     closeTaskDetail();
     openEpicDetail(epic.id);
@@ -61,8 +52,6 @@ export function useTaskDetailActions(tasks: Task[], epics: Epic[]) {
     closeTaskDetail,
     handleEpicModalTaskClick,
     handleTaskModalEpicClick,
-    openEpicDetail,
-    openHistoryEntity,
     openTaskDetail,
     selectedEpic,
     selectedEpicTasks,

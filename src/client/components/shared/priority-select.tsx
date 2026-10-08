@@ -22,8 +22,8 @@ export function PrioritySelect({ value, onChange, triggerClassName }: PrioritySe
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {Object.entries(PRIORITY_LABELS).map(([val, label]) => (
-          <SelectItem key={val} value={val}>
+        {[...PRIORITY_LABELS].map(([val, label]) => (
+          <SelectItem key={val} value={String(val)}>
             P{val} - {label}
           </SelectItem>
         ))}

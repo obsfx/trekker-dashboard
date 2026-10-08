@@ -8,9 +8,14 @@ import { FULL_PERCENTAGE } from '@/lib/constants';
 import { formatRelativeTime } from '@/lib/date';
 import type { Epic } from '@/types';
 
+interface EpicTaskCount {
+  total: number;
+  completed: number;
+}
+
 interface EpicCardProps {
   epic: Epic;
-  taskCount: { total: number; completed: number };
+  taskCount: EpicTaskCount;
   onClick: () => void;
 }
 

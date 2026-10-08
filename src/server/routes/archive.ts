@@ -8,4 +8,4 @@ app.post('/', async (c) => {
   return c.json(result);
 });
 
-export default app;
+export { app as archiveRoutes };

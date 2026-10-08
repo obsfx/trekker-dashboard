@@ -49,4 +49,4 @@ app.delete('/:id', async (c) => {
   return c.json({ success: true });
 });
 
-export default app;
+export { app as epicsRoutes };

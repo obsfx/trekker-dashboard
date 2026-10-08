@@ -1,8 +1,9 @@
 import { DatabaseError } from '@server/errors';
-import { DEFAULT_HISTORY_QUERY_LIMIT, DEFAULT_PAGE } from '@server/lib/constants';
+import { DEFAULT_HISTORY_QUERY_LIMIT } from '@server/lib/constants';
 import { getDb, getSqliteInstance } from '@server/lib/db';
-import { parseCsvQuery, parseQueryNumber } from '@server/lib/query';
+import { addInCondition, parseCsvQuery, parsePagination, type SqlParam } from '@server/lib/query';
 import { Hono } from 'hono';
+import { z } from 'zod';
 
 const app = new Hono();
 
@@ -19,12 +20,62 @@ interface HistoryResultRow {
   created_at: number;
 }
 
-function parseHistoryJson(value: string | null): unknown {
+const historyValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+const historySnapshotSchema = z.record(z.string(), historyValueSchema);
+const historyChangesSchema = z.record(
+  z.string(),
+  z.object({ from: historyValueSchema, to: historyValueSchema })
+);
+const historyTitleSchema = z.string().min(1);
+
+type HistorySnapshot = z.infer<typeof historySnapshotSchema>;
+type HistoryChanges = z.infer<typeof historyChangesSchema>;
+
+function parseHistorySnapshot(value: string | null): HistorySnapshot | null {
   if (!value) {
     return null;
   }
 
-  return JSON.parse(value);
+  return historySnapshotSchema.parse(JSON.parse(value));
+}
+
+function parseHistoryChanges(value: string | null): HistoryChanges | null {
+  if (!value) {
+    return null;
+  }
+
+  return historyChangesSchema.parse(JSON.parse(value));
+}
+
+function deriveHistoryTitle(
+  snapshot: HistorySnapshot | null,
+  changes: HistoryChanges | null
+): string | null {
+  const candidates = [snapshot?.title, changes?.title?.to, changes?.title?.from];
+  for (const candidate of candidates) {
+    const parsed = historyTitleSchema.safeParse(candidate);
+    if (parsed.success) {
+      return parsed.data;
+    }
+  }
+
+  return null;
+}
+
+function toHistoryEvent(row: HistoryResultRow) {
+  const snapshot = parseHistorySnapshot(row.snapshot);
+  const changes = parseHistoryChanges(row.changes);
+
+  return {
+    id: row.id,
+    action: row.action as HistoryAction,
+    entityType: row.entity_type as HistoryEntityType,
+    entityId: row.entity_id,
+    title: deriveHistoryTitle(snapshot, changes),
+    snapshot,
+    changes,
+    timestamp: new Date(row.created_at).toISOString(),
+  };
 }
 
 app.get('/', async (c) => {
@@ -41,30 +92,24 @@ app.get('/', async (c) => {
   const actions = parseCsvQuery(actionParam) as HistoryAction[] | undefined;
   const since = c.req.query('since');
   const until = c.req.query('until');
-  const limit = parseQueryNumber(c.req.query('limit'), DEFAULT_HISTORY_QUERY_LIMIT);
-  const page = parseQueryNumber(c.req.query('page'), DEFAULT_PAGE);
-  const offset = (page - 1) * limit;
+  const { limit, page, offset } = parsePagination(
+    c.req.query('limit'),
+    c.req.query('page'),
+    DEFAULT_HISTORY_QUERY_LIMIT
+  );
 
   // Build WHERE conditions
   const conditions: string[] = [];
-  const params: (string | number)[] = [];
+  const params: SqlParam[] = [];
 
   if (entityId) {
     conditions.push('entity_id = ?');
     params.push(entityId);
   }
 
-  if (types && types.length > 0) {
-    const placeholders = types.map(() => '?').join(', ');
-    conditions.push(`entity_type IN (${placeholders})`);
-    params.push(...types);
-  }
+  addInCondition(conditions, params, 'entity_type', types);
 
-  if (actions && actions.length > 0) {
-    const placeholders = actions.map(() => '?').join(', ');
-    conditions.push(`action IN (${placeholders})`);
-    params.push(...actions);
-  }
+  addInCondition(conditions, params, 'action', actions);
 
   if (since) {
     const sinceDate = new Date(since);
@@ -106,16 +151,8 @@ app.get('/', async (c) => {
     total,
     page,
     limit,
-    events: results.map((row) => ({
-      id: row.id,
-      action: row.action as HistoryAction,
-      entityType: row.entity_type as HistoryEntityType,
-      entityId: row.entity_id,
-      snapshot: parseHistoryJson(row.snapshot),
-      changes: parseHistoryJson(row.changes),
-      timestamp: new Date(row.created_at).toISOString(),
-    })),
+    events: results.map(toHistoryEvent),
   });
 });
 
-export default app;
+export { app as historyRoutes };

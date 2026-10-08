@@ -7,13 +7,21 @@ import { fetchQuery } from '@/hooks/api-query';
 export type HistoryEntityType = 'epic' | 'task' | 'subtask' | 'comment' | 'dependency';
 export type HistoryAction = 'create' | 'update' | 'delete';
 
+type HistoryValue = string | number | boolean | null;
+
+interface HistoryChange {
+  from: HistoryValue;
+  to: HistoryValue;
+}
+
 export interface HistoryEvent {
   id: number;
   action: HistoryAction;
   entityType: HistoryEntityType;
   entityId: string;
-  snapshot: Record<string, unknown> | null;
-  changes: Record<string, { from: unknown; to: unknown }> | null;
+  title: string | null;
+  snapshot: Record<string, HistoryValue> | null;
+  changes: Record<string, HistoryChange> | null;
   timestamp: string;
 }
 

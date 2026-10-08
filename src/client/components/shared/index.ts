@@ -6,3 +6,4 @@ export { PrioritySelect } from '@/components/shared/priority-select';
 export { SectionHeader } from '@/components/shared/section-header';
 export { StatusIcon } from '@/components/shared/status-icon';
 export { StatusSelect } from '@/components/shared/status-select';
+export { WorkItemCoreFields } from '@/components/shared/work-item-core-fields';

@@ -71,4 +71,4 @@ app.post('/:id/comments', zValidator('json', createCommentSchema), async (c) => 
   return c.json(comment, HTTP_STATUS_CREATED);
 });
 
-export default app;
+export { app as tasksRoutes };

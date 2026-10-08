@@ -2,7 +2,13 @@
 
 import { Badge } from '@/components/ui/badge';
 import type { ListItem, ListResponse } from '@/hooks/use-list';
-import { PRIORITY_LABELS, PRIORITY_STYLES, STATUS_LABELS, STATUS_STYLES } from '@/lib/constants';
+import {
+  FALLBACK_BADGE_COLORS,
+  PRIORITY_LABELS,
+  PRIORITY_STYLES,
+  STATUS_LABELS,
+  STATUS_STYLES,
+} from '@/lib/constants';
 import { formatDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
 import { PageResultsFrame } from '@/pages/page-results-frame';
@@ -65,22 +71,22 @@ export function ListPageResults({
                 <td className="px-4 py-3">
                   <Badge
                     style={{
-                      backgroundColor: STATUS_STYLES[item.status]?.bg ?? '#6b7280',
-                      color: STATUS_STYLES[item.status]?.text ?? '#ffffff',
+                      backgroundColor: (STATUS_STYLES.get(item.status) ?? FALLBACK_BADGE_COLORS).bg,
+                      color: (STATUS_STYLES.get(item.status) ?? FALLBACK_BADGE_COLORS).text,
                     }}
                   >
-                    {STATUS_LABELS[item.status] ?? item.status}
+                    {STATUS_LABELS.get(item.status) ?? item.status}
                   </Badge>
                 </td>
                 <td className="px-4 py-3">
                   <Badge
                     variant="outline"
                     style={{
-                      borderColor: PRIORITY_STYLES[item.priority]?.bg ?? '#6b7280',
-                      color: PRIORITY_STYLES[item.priority]?.bg ?? '#6b7280',
+                      borderColor: (PRIORITY_STYLES.get(item.priority) ?? FALLBACK_BADGE_COLORS).bg,
+                      color: (PRIORITY_STYLES.get(item.priority) ?? FALLBACK_BADGE_COLORS).bg,
                     }}
                   >
-                    P{item.priority} - {PRIORITY_LABELS[item.priority]}
+                    P{item.priority} - {PRIORITY_LABELS.get(item.priority)}
                   </Badge>
                 </td>
                 <td className="px-4 py-3 text-sm text-muted-foreground">
