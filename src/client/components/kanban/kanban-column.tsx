@@ -13,6 +13,7 @@ import { TaskCard } from '@/components/kanban/task-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { compareBySortOption } from '@/lib/sort';
+import { countCompleted } from '@/lib/status';
 import type { Epic, Task } from '@/types';
 
 interface KanbanColumnProps {
@@ -62,7 +63,7 @@ export function KanbanColumn({
 
   const getTaskCountForEpic = (epicId: string) => {
     const epicTasks = allTasks.filter((t) => t.epicId === epicId && !t.parentTaskId);
-    const completed = epicTasks.filter((t) => t.status === 'completed').length;
+    const completed = countCompleted(epicTasks);
     return { total: epicTasks.length, completed };
   };
 
