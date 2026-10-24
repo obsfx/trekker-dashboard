@@ -188,7 +188,10 @@ export function getDbPath(cwd: string): string {
   return join(cwd, '.trekker', 'trekker.db');
 }
 
-export function createApiTestContext(cleanupDirs: string[], initArgs: string[] = []): ApiTestContext {
+export function createApiTestContext(
+  cleanupDirs: string[],
+  initArgs: string[] = []
+): ApiTestContext {
   const cwd = createTempProject(initArgs);
   const dbPath = getDbPath(cwd);
   const app = createApp();
@@ -224,7 +227,10 @@ export function createApiTestContext(cleanupDirs: string[], initArgs: string[] =
     return response.body;
   }
 
-  async function createComment(taskId: string, input: CreateCommentInput): Promise<CommentResponse> {
+  async function createComment(
+    taskId: string,
+    input: CreateCommentInput
+  ): Promise<CommentResponse> {
     const response = await requestJson<CommentResponse>(`/api/tasks/${taskId}/comments`, {
       method: 'POST',
       headers: JSON_HEADERS,

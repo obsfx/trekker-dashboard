@@ -24,7 +24,7 @@ function appendQueryParam(searchParams: URLSearchParams, key: string, value: Que
   searchParams.set(key, String(value));
 }
 
-export function buildQueryParams(params: Record<string, QueryParamValue>): URLSearchParams {
+function buildQueryParams(params: Record<string, QueryParamValue>): URLSearchParams {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(params)) {

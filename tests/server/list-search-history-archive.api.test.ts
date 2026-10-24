@@ -45,7 +45,9 @@ describe('list, search, history, and archive APIs', () => {
       parentTaskId: parentTask.id,
     });
 
-    const paginated = await context.requestJson<ListResponse>('/api/list?sort=title:asc&limit=2&page=2');
+    const paginated = await context.requestJson<ListResponse>(
+      '/api/list?sort=title:asc&limit=2&page=2'
+    );
     expect(paginated.status).toBe(200);
     expect(paginated.body.total).toBe(4);
     expect(paginated.body.page).toBe(2);
@@ -57,7 +59,9 @@ describe('list, search, history, and archive APIs', () => {
     expect(subtaskOnly.body.items[0]?.id).toBe(subtask.id);
     expect(subtaskOnly.body.items[0]?.parentId).toBe(parentTask.id);
 
-    const filtered = await context.requestJson<ListResponse>('/api/list?status=completed&priority=0');
+    const filtered = await context.requestJson<ListResponse>(
+      '/api/list?status=completed&priority=0'
+    );
     expect(filtered.status).toBe(200);
     expect(filtered.body.total).toBe(1);
     expect(filtered.body.items[0]?.id).toBe(subtask.id);
@@ -117,9 +121,12 @@ describe('list, search, history, and archive APIs', () => {
     expect(searchByStatus.status).toBe(200);
     expect(searchByStatus.body.results.map((result) => result.id)).toEqual([task.id]);
 
-    const deleteComment = await context.requestJson<{ success: boolean }>(`/api/comments/${comment.id}`, {
-      method: 'DELETE',
-    });
+    const deleteComment = await context.requestJson<{ success: boolean }>(
+      `/api/comments/${comment.id}`,
+      {
+        method: 'DELETE',
+      }
+    );
     expect(deleteComment.status).toBe(200);
 
     const taskHistory = await context.requestJson<HistoryResponse>(
