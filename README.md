@@ -1,5 +1,8 @@
 # Trekker Dashboard
 
+> [!IMPORTANT]
+> This project has moved into the Trekker CLI and is no longer maintained. Install [`@obsfx/trekker`](https://www.npmjs.com/package/@obsfx/trekker) 1.12.0 or later and run `trekker serve`. It opens the same board on the same `.trekker/trekker.db`, with nothing else to install. This repository is archived and the `@obsfx/trekker-dashboard` npm package is deprecated.
+
 A kanban board for [Trekker](https://github.com/obsfx/trekker). It reads the same `.trekker/trekker.db` the CLI writes and updates live, so you can watch your agents move tasks around while they work.
 
 <picture>
