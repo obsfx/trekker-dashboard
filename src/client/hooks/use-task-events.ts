@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import { STATUS_LABELS } from '@/lib/constants';
+import { entityToastId } from '@/lib/entity-toast';
 import { sendNotification } from '@/lib/notifications';
 import { useUIStore } from '@/stores';
 
@@ -94,35 +95,42 @@ export function useTaskEvents(onTaskChange?: () => void) {
 
         let title = '';
         let description = '';
+        let toastId = '';
 
         switch (data.type) {
           case 'task_created':
             title = `Task ${data.taskId} created`;
+            toastId = entityToastId('task', 'created', data.taskId);
             description = `"${data.taskTitle}"`;
             break;
           case 'task_updated':
             title = `Task ${data.taskId} updated`;
+            toastId = entityToastId('task', 'updated', data.taskId);
             description = `"${data.taskTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
             break;
           case 'task_deleted':
             title = `Task ${data.taskId} deleted`;
+            toastId = entityToastId('task', 'deleted', data.taskId);
             description = `"${data.taskTitle}"`;
             break;
           case 'epic_created':
             title = `Epic ${data.epicId} created`;
+            toastId = entityToastId('epic', 'created', data.epicId);
             description = `"${data.epicTitle}"`;
             break;
           case 'epic_updated':
             title = `Epic ${data.epicId} updated`;
+            toastId = entityToastId('epic', 'updated', data.epicId);
             description = `"${data.epicTitle}" → ${STATUS_LABELS[data.status] || data.status}`;
             break;
           case 'epic_deleted':
             title = `Epic ${data.epicId} deleted`;
+            toastId = entityToastId('epic', 'deleted', data.epicId);
             description = `"${data.epicTitle}"`;
             break;
         }
 
-        toast.info(title, { description });
+        toast.info(title, { description, id: toastId });
         sendNotification({ title, body: description, tag: data.type });
         onTaskChangeRef.current?.();
       } catch {

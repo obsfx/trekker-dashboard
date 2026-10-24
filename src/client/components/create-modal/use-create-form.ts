@@ -11,6 +11,7 @@ import {
   type CreateFormValues,
   subtaskFormSchema,
 } from '@/components/create-modal/schema';
+import { entityToastId } from '@/lib/entity-toast';
 import { getErrorMessage } from '@/lib/errors';
 import type { CreateType } from '@/types';
 
@@ -127,13 +128,19 @@ export function useCreateForm({ type, defaultStatus, onClose, onCreated }: UseCr
 
         if (type === 'epic') {
           created = await createEpic(data);
-          toast.success(`Epic ${created.id} created`);
+          toast.success(`Epic ${created.id} created`, {
+            id: entityToastId('epic', 'created', created.id),
+          });
         } else if (type === 'subtask') {
           created = await createSubtask(data);
-          toast.success(`Subtask ${created.id} created`);
+          toast.success(`Subtask ${created.id} created`, {
+            id: entityToastId('task', 'created', created.id),
+          });
         } else {
           created = await createTask(data);
-          toast.success(`Task ${created.id} created`);
+          toast.success(`Task ${created.id} created`, {
+            id: entityToastId('task', 'created', created.id),
+          });
         }
 
         onClose();

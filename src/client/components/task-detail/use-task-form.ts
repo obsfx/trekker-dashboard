@@ -12,6 +12,7 @@ import {
   updateTaskRequest,
 } from '@/components/task-detail/form-helpers';
 import { type TaskFormData, taskFormSchema } from '@/components/task-detail/schema';
+import { entityToastId } from '@/lib/entity-toast';
 import { getErrorMessage } from '@/lib/errors';
 import type { Task } from '@/types';
 
@@ -58,7 +59,7 @@ export function useTaskForm({ task, open, isEditing, onClose, onUpdate }: UseTas
         epicId: data.epicId || null,
       });
 
-      toast.success('Task updated');
+      toast.success('Task updated', { id: entityToastId('task', 'updated', task.id) });
       onUpdate();
       queryClient.invalidateQueries({ queryKey: ['history'] });
       return true;
@@ -74,7 +75,7 @@ export function useTaskForm({ task, open, isEditing, onClose, onUpdate }: UseTas
     try {
       await deleteTaskRequest(task.id);
 
-      toast.success('Task deleted');
+      toast.success('Task deleted', { id: entityToastId('task', 'deleted', task.id) });
       onClose();
       onUpdate();
       queryClient.invalidateQueries({ queryKey: ['history'] });

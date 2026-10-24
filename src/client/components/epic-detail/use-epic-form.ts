@@ -11,6 +11,7 @@ import {
   updateEpicRequest,
 } from '@/components/epic-detail/form-helpers';
 import { type EpicFormData, epicFormSchema } from '@/components/epic-detail/schema';
+import { entityToastId } from '@/lib/entity-toast';
 import { getErrorMessage } from '@/lib/errors';
 import type { Epic } from '@/types';
 
@@ -54,7 +55,7 @@ export function useEpicForm({ epic, open, isEditing, onClose, onUpdate }: UseEpi
         priority: data.priority,
       });
 
-      toast.success('Epic updated');
+      toast.success('Epic updated', { id: entityToastId('epic', 'updated', epic.id) });
       onUpdate();
       return true;
     } catch (error) {
@@ -69,7 +70,7 @@ export function useEpicForm({ epic, open, isEditing, onClose, onUpdate }: UseEpi
     try {
       await deleteEpicRequest(epic.id);
 
-      toast.success('Epic deleted');
+      toast.success('Epic deleted', { id: entityToastId('epic', 'deleted', epic.id) });
       onClose();
       onUpdate();
     } catch (error) {
