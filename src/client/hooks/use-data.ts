@@ -70,6 +70,7 @@ export function useUpdateProjectConfig() {
 
 // Combined data hook for the main page
 export function useAppData() {
+  const queryClient = useQueryClient();
   const tasksQuery = useTasks();
   const epicsQuery = useEpics();
   const projectQuery = useProject();
@@ -84,6 +85,7 @@ export function useAppData() {
       tasksQuery.refetch();
       epicsQuery.refetch();
       projectQuery.refetch();
+      queryClient.invalidateQueries({ queryKey: ['list'] });
     },
   };
 }
