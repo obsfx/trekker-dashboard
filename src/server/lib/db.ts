@@ -38,6 +38,8 @@ const dbPathStorage = new AsyncLocalStorage<string>();
 const sqliteInstances = new Map<string, Database>();
 const drizzleInstances = new Map<string, ReturnType<typeof drizzle<typeof schema>>>();
 
+const BUSY_TIMEOUT_MS = 5000;
+
 function seedProjectConfig(sqlite: Database): void {
   for (const [key, value] of Object.entries(PROJECT_CONFIG_DEFAULTS)) {
     sqlite.query('INSERT OR IGNORE INTO project_config (key, value) VALUES (?, ?)').run(key, value);
@@ -76,6 +78,7 @@ export function getDb() {
   }
 
   const sqliteInstance = new Database(dbPath);
+  sqliteInstance.run(`PRAGMA busy_timeout = ${BUSY_TIMEOUT_MS}`);
   migrateProjectConfigTable(sqliteInstance);
   const db = drizzle(sqliteInstance, { schema });
   sqliteInstances.set(dbPath, sqliteInstance);
