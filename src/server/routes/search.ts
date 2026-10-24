@@ -1,6 +1,7 @@
 import { DatabaseError, ValidationError } from '@server/errors';
 import { DEFAULT_PAGE, DEFAULT_SEARCH_QUERY_LIMIT } from '@server/lib/constants';
 import { getDb, getSqliteInstance } from '@server/lib/db';
+import { resolveMatchQuery } from '@server/lib/fts-query';
 import { parseCsvQuery, parseQueryNumber } from '@server/lib/query';
 import { Hono } from 'hono';
 
@@ -39,7 +40,7 @@ app.get('/', async (c) => {
 
   // Build WHERE conditions
   const conditions: string[] = ['search_index MATCH ?'];
-  const params: (string | number)[] = [query];
+  const params: (string | number)[] = [resolveMatchQuery(sqlite, query)];
 
   if (types && types.length > 0) {
     const placeholders = types.map(() => '?').join(', ');

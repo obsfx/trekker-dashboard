@@ -74,6 +74,23 @@ describe('list, search, history, and archive APIs', () => {
     expect(task.id).toBeTruthy();
   });
 
+  it('treats hyphenated words, task IDs, and stray quotes as plain text in search', async () => {
+    const context = createApiTestContext(cleanupDirs);
+
+    const task = await context.createTask({ title: 'Speed up cold start' });
+
+    const hyphenated = await context.requestJson<SearchResponse>('/api/search?q=cold-start');
+    expect(hyphenated.status).toBe(200);
+    expect(hyphenated.body.results.map((result) => result.id)).toEqual([task.id]);
+
+    const byId = await context.requestJson<SearchResponse>(`/api/search?q=${task.id}`);
+    expect(byId.status).toBe(200);
+    expect(byId.body.results[0]?.id).toBe(task.id);
+
+    const strayQuote = await context.requestJson<SearchResponse>('/api/search?q=cold%22start');
+    expect(strayQuote.status).toBe(200);
+  });
+
   it('returns searchable results and history events for create, update, and delete flows', async () => {
     const context = createApiTestContext(cleanupDirs);
 
