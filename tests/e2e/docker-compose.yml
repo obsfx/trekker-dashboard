@@ -1,0 +1,13 @@
+name: trekker-dashboard-e2e
+
+services:
+  e2e:
+    build:
+      context: ../..
+      dockerfile: tests/e2e/Dockerfile
+    init: true
+    ipc: host
+    environment:
+      E2E_RETRIES: ${E2E_RETRIES:-0}
+    volumes:
+      - ./.artifacts:/app/tests/e2e/.artifacts

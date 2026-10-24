@@ -137,7 +137,7 @@ export function TaskEdit({
         <div className="space-y-2">
           <Label>Epic</Label>
           <Select value={epicId || 'none'} onValueChange={handleEpicChange}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Epic">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

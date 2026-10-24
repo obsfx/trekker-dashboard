@@ -44,7 +44,7 @@ export function ListPagePagination({
             value={String(limit)}
             onValueChange={(value) => onSetFilters({ ...filters, limit: Number(value), page: 1 })}
           >
-            <SelectTrigger className="h-8 w-[80px]">
+            <SelectTrigger aria-label="Items per page" className="h-8 w-[80px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

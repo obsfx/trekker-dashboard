@@ -67,7 +67,10 @@ export function KanbanColumn({
   };
 
   return (
-    <div className="w-[280px] min-w-[280px] max-w-[320px] flex flex-col border rounded-md">
+    <section
+      aria-label={label}
+      className="w-[280px] min-w-[280px] max-w-[320px] flex flex-col border rounded-md"
+    >
       <div className="flex items-center justify-between border-b p-2 bg-accent/50">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-sm">{label}</span>
@@ -126,6 +129,6 @@ export function KanbanColumn({
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

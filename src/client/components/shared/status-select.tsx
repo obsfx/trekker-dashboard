@@ -19,7 +19,7 @@ interface StatusSelectProps {
 export function StatusSelect({ value, onChange, statuses, triggerClassName }: StatusSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={triggerClassName}>
+      <SelectTrigger aria-label="Status" className={triggerClassName}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

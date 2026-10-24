@@ -1,0 +1,8 @@
+.git
+.idea
+.trekker
+.DS_Store
+node_modules
+dist
+tests/e2e/.artifacts
+*.tsbuildinfo

@@ -21,6 +21,7 @@ interface SearchableSelectProps {
   placeholder?: string;
   emptyText?: string;
   className?: string;
+  'aria-label'?: string;
 }
 
 export function SearchableSelect({
@@ -30,6 +31,7 @@ export function SearchableSelect({
   placeholder = 'Select...',
   emptyText = 'No results found',
   className,
+  'aria-label': ariaLabel,
 }: SearchableSelectProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState('');
@@ -118,6 +120,7 @@ export function SearchableSelect({
         type="button"
         variant="outline"
         role="combobox"
+        aria-label={ariaLabel}
         aria-expanded={open}
         className="w-full justify-between font-normal"
         onClick={() => {

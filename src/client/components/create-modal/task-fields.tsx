@@ -34,6 +34,7 @@ export function TaskFields({ form, epics }: TaskFieldsProps) {
           name="epicId"
           render={({ field }) => (
             <SearchableSelect
+              aria-label="Epic"
               options={epicOptions}
               value={field.value}
               onValueChange={field.onChange}

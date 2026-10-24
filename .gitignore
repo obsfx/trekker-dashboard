@@ -39,3 +39,6 @@ coverage/
 tsconfig.tsbuildinfo
 
 docs/
+
+# E2E artifacts
+tests/e2e/.artifacts/

@@ -40,7 +40,7 @@ export function HistoryEventItem({ event, onEntityClick }: HistoryEventItemProps
     event.action !== 'delete' && ['epic', 'task', 'subtask'].includes(event.entityType);
 
   return (
-    <div className="flex gap-3 p-4 border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+    <article className="flex gap-3 p-4 border-b last:border-b-0 hover:bg-muted/30 transition-colors">
       <div className="mt-0.5">
         <ActionIcon action={event.action} />
       </div>
@@ -81,6 +81,6 @@ export function HistoryEventItem({ event, onEntityClick }: HistoryEventItemProps
       <div className="text-xs text-muted-foreground whitespace-nowrap">
         {formatRelativeTime(event.timestamp)}
       </div>
-    </div>
+    </article>
   );
 }

@@ -22,6 +22,7 @@ export function EpicCard({ epic, taskCount, onClick }: EpicCardProps) {
 
   return (
     <div
+      data-epic-id={epic.id}
       className="p-2 cursor-pointer bg-blue-50 dark:bg-blue-800 hover:ring wrap-break-word"
       onClick={onClick}
     >

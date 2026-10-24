@@ -40,6 +40,7 @@ export function SubtaskFields({ form, parentTasks }: SubtaskFieldsProps) {
           name="parentTaskId"
           render={({ field }) => (
             <SearchableSelect
+              aria-label="Parent task"
               options={taskOptions}
               value={field.value || null}
               onValueChange={(value) => field.onChange(value ?? '')}

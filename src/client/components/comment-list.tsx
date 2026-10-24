@@ -33,6 +33,7 @@ export function CommentList({ comments, loading, onDelete }: CommentListProps) {
               </span>
             </div>
             <Button
+              aria-label="Delete comment"
               variant="ghost"
               size="icon"
               className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"

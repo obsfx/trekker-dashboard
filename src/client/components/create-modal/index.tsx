@@ -83,7 +83,7 @@ export function CreateModal({
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

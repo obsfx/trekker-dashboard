@@ -62,6 +62,7 @@ export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">Sort by</label>
           <select
+            aria-label="Sort by"
             value={value.sort}
             onChange={(e) => {
               const sort = e.target.value;
@@ -82,6 +83,7 @@ export function ColumnFilter({ value, onChange }: ColumnFilterProps) {
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-muted-foreground">Show</label>
           <select
+            aria-label="Show"
             value={value.type}
             onChange={(e) => {
               const type = e.target.value;

@@ -63,7 +63,7 @@ export function CreateForm({ form, type, epics, parentTasks }: CreateFormProps) 
             name="status"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -88,7 +88,7 @@ export function CreateForm({ form, type, epics, parentTasks }: CreateFormProps) 
                 value={String(field.value)}
                 onValueChange={(v) => field.onChange(parseInt(v, 10))}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Priority">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -28,7 +28,7 @@ export function PageFilterSelect({
 }: PageFilterSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className={widthClassName}>
+      <SelectTrigger aria-label={placeholder} className={widthClassName}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

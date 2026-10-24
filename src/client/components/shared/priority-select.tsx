@@ -18,7 +18,7 @@ interface PrioritySelectProps {
 export function PrioritySelect({ value, onChange, triggerClassName }: PrioritySelectProps) {
   return (
     <Select value={value.toString()} onValueChange={(v) => onChange(parseInt(v, 10))}>
-      <SelectTrigger className={triggerClassName}>
+      <SelectTrigger aria-label="Priority" className={triggerClassName}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
