@@ -4,7 +4,7 @@
   "description": "Kanban board dashboard for Trekker issue tracker. Connects to local .trekker database.",
   "type": "module",
   "bin": {
-    "trekker-dashboard": "./bin/trekker-dashboard.js"
+    "trekker-dashboard": "bin/trekker-dashboard.js"
   },
   "files": [
     "bin",
@@ -20,17 +20,16 @@
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix --cache",
     "knip": "knip",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\" \"vite.config.ts\" \"eslint.config.mjs\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\" \"vite.config.ts\" \"eslint.config.mjs\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"vite.config.ts\" \"eslint.config.mjs\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.{ts,tsx}\" \"scripts/**/*.ts\" \"vite.config.ts\" \"eslint.config.mjs\"",
     "typecheck": "tsc --noEmit",
     "check": "bun run lint && bun run format:check && bun run typecheck",
     "test:e2e": "playwright test -c tests/e2e/playwright.config.ts",
     "test:e2e:docker": "docker compose -f tests/e2e/docker-compose.yml run --rm --build e2e",
     "duplicates": "jscpd src --format typescript,tsx --min-lines 5 --min-tokens 40 --gitignore --reporters console",
     "start": "bun run src/cli.ts",
-    "release:patch": "bun run build && npm version patch && npm publish --access public",
-    "release:minor": "bun run build && npm version minor && npm publish --access public",
-    "release:major": "bun run build && npm version major && npm publish --access public"
+    "test": "bun test tests/server",
+    "release": "bun scripts/release.ts"
   },
   "keywords": [
     "trekker",
@@ -48,7 +47,7 @@
   "homepage": "https://github.com/obsfx/trekker",
   "repository": {
     "type": "git",
-    "url": "https://github.com/obsfx/trekker-dashboard.git"
+    "url": "git+https://github.com/obsfx/trekker-dashboard.git"
   },
   "bugs": {
     "url": "https://github.com/obsfx/trekker-dashboard/issues"

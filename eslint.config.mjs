@@ -307,7 +307,7 @@ export default tseslint.config(
   },
 
   {
-    files: ['src/server/index.ts'],
+    files: ['src/server/index.ts', 'scripts/**/*.ts'],
     rules: {
       'no-console': 'off',
     },
