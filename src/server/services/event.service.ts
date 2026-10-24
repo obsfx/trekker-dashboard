@@ -1,3 +1,4 @@
+import { EVENT_POLL_INTERVAL_MS } from '@server/lib/constants';
 import { epics, getDb, tasks } from '@server/lib/db';
 
 // Note: This is a polling-based SSE implementation with global state.
@@ -25,11 +26,15 @@ type SSEEvent =
   | { type: 'epic_updated'; epicId: string; epicTitle: string; status: string }
   | { type: 'epic_deleted'; epicId: string; epicTitle: string };
 
+type ChangeListener = (event: SSEEvent) => void;
+
 const lastTaskState = new Map<string, TaskSnapshot>();
 const lastEpicState = new Map<string, EpicSnapshot>();
+const listeners = new Set<ChangeListener>();
+let pollTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function initialize(): Promise<void> {
-  if (lastTaskState.size > 0 || lastEpicState.size > 0) {
+  if (listeners.size > 0) {
     return;
   }
 
@@ -40,6 +45,7 @@ export async function initialize(): Promise<void> {
       db.select().from(epics),
     ]);
 
+    lastTaskState.clear();
     for (const task of currentTasks) {
       lastTaskState.set(task.id, {
         id: task.id,
@@ -49,6 +55,7 @@ export async function initialize(): Promise<void> {
       });
     }
 
+    lastEpicState.clear();
     for (const epic of currentEpics) {
       lastEpicState.set(epic.id, {
         id: epic.id,
@@ -62,7 +69,37 @@ export async function initialize(): Promise<void> {
   }
 }
 
-export async function getChanges(): Promise<SSEEvent[]> {
+export function subscribe(listener: ChangeListener): () => void {
+  listeners.add(listener);
+  if (!pollTimer) {
+    schedulePoll();
+  }
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function schedulePoll(): void {
+  pollTimer = setTimeout(() => {
+    void broadcastChanges();
+  }, EVENT_POLL_INTERVAL_MS);
+}
+
+async function broadcastChanges(): Promise<void> {
+  const events = await getChanges().catch((): SSEEvent[] => []);
+  for (const event of events) {
+    for (const listener of listeners) {
+      listener(event);
+    }
+  }
+  if (listeners.size > 0) {
+    schedulePoll();
+  } else {
+    pollTimer = null;
+  }
+}
+
+async function getChanges(): Promise<SSEEvent[]> {
   const db = getDb();
   const [currentTasks, currentEpics] = await Promise.all([
     db.select().from(tasks),

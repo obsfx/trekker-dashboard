@@ -1,4 +1,4 @@
-import { EVENT_POLL_INTERVAL_MS } from '@server/lib/constants';
+import { SSE_HEARTBEAT_INTERVAL_MS } from '@server/lib/constants';
 import * as eventService from '@server/services/event.service';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
@@ -13,32 +13,26 @@ app.get('/', async (c) => {
       data: JSON.stringify({ type: 'connected' }),
     });
 
-    let running = true;
-
-    const checkForChanges = async () => {
-      while (running) {
-        try {
-          const events = await eventService.getChanges();
-          for (const event of events) {
-            await stream.writeSSE({
-              data: JSON.stringify({
-                ...event,
-                timestamp: new Date().toISOString(),
-              }),
-            });
-          }
-        } catch {
-          // Ignore errors during polling
-        }
-        await stream.sleep(EVENT_POLL_INTERVAL_MS);
-      }
-    };
-
-    c.req.raw.signal.addEventListener('abort', () => {
-      running = false;
+    const unsubscribe = eventService.subscribe((event) => {
+      void stream.writeSSE({
+        data: JSON.stringify({
+          ...event,
+          timestamp: new Date().toISOString(),
+        }),
+      });
     });
 
-    await checkForChanges();
+    const heartbeat = setInterval(() => {
+      void stream.writeSSE({ event: 'ping', data: '' });
+    }, SSE_HEARTBEAT_INTERVAL_MS);
+
+    await new Promise<void>((resolve) => {
+      stream.onAbort(() => {
+        clearInterval(heartbeat);
+        unsubscribe();
+        resolve();
+      });
+    });
   });
 });
 

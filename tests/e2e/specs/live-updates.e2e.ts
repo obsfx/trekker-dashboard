@@ -32,4 +32,33 @@ test.describe('live updates from external trekker changes', () => {
     await expect(toast(page, `Epic ${EPICS.reporting.id} updated`)).toBeVisible();
     await expect(epicCard(kanbanColumn(page, 'Completed'), EPICS.reporting.id)).toBeVisible();
   });
+
+  test('updates every open tab', async ({ page, project }) => {
+    const secondTab = await page.context().newPage();
+    await secondTab.goto('/');
+    await expect(secondTab.getByText('Connected to live updates')).toBeVisible();
+
+    project.trekker(['task', 'create', '-t', 'Seen in both tabs']);
+    await expect(taskCard(kanbanColumn(page, 'TODO'), NEXT_TASK_ID)).toBeVisible();
+    await expect(taskCard(kanbanColumn(secondTab, 'TODO'), NEXT_TASK_ID)).toBeVisible();
+  });
+
+  test('keeps the live update stream open while nothing changes', async ({ page }) => {
+    test.setTimeout(30_000);
+
+    const connections = await page.evaluate(async () => {
+      const source = new EventSource('/api/events');
+      let connected = 0;
+      source.onmessage = (event: MessageEvent<string>) => {
+        if ((JSON.parse(event.data) as { type: string }).type === 'connected') {
+          connected++;
+        }
+      };
+      await new Promise((resolve) => setTimeout(resolve, 15_000));
+      source.close();
+      return connected;
+    });
+
+    expect(connections).toBe(1);
+  });
 });
